@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Asyl.me</title>
+
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="static/css/screen.css" />
+	<!--
+	<link rel="stylesheet" href="static/css/MarkerCluster.css" />
+	<link rel="stylesheet" href="static/css/MarkerCluster.Default.css" />
+	-->
+
+	<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+
+	<script src="static/js/shp.min.js"></script>
+	<script src="static/js/leaflet.shpfile.js"></script>
+
+	<!--
+	<script src="static/js/leaflet.markercluster-src.js"></script>
+	-->
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+</head>
+<body>
+
+	<div id="progress"><div id="progress-bar"></div></div>
+
+	<div id="header">
+
+		<h1>Asyl-Statistik</h1>
+
+	</div>
+
+	<div id="map" style="height:100%;margin:0 auto;width:100%;"></div>
+
+	<script type="text/javascript">
+
+		// zoom level config
+		// ----------
+		var zoom_level = 3,
+            minZoom = 3,
+			maxZoom = 17;
+		// ----------
+
+		var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+				maxZoom: maxZoom,
+				minZoom: minZoom,
+				attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+			}),
+			latlng = L.latLng(47.683, 14.912);
+
+		var map = L.map('map', {
+			center: latlng,
+			zoom: zoom_level,
+			layers: [tiles]
+		});
+
+		$(document).ready(function(){
+			var shpfile = new L.Shapefile('static/shape/TM_WORLD_BORDERS_SIMPL-0.3.zip', {
+				onEachFeature: function(feature, layer) {
+					console.log('feature', feature);
+					if (feature.properties) {
+					    if (['AT'].indexOf(feature.properties.ISO2) !== -1) {
+							layer.bindPopup(Object.keys(feature.properties).map(function(k) {
+								return k + ": " + feature.properties[k];
+							}).join("<br />"), {
+								maxHeight: 200
+							});
+							layer.setStyle({fillColor: '#FF0000', color: '#AA9999', weight: 3, fillOpacity: 0.8});
+					    } else if (['SY', 'AF', 'IQ', 'PK', 'IR', 'SO', 'RU', 'NG', 'DZ', 'BD', 'UA', 'MA', 'IN'].indexOf(feature.properties.ISO2) !== -1) {
+							layer.bindPopup(Object.keys(feature.properties).map(function(k) {
+								return k + ": " + feature.properties[k];
+							}).join("<br />"), {
+								maxHeight: 200
+							});
+							layer.setStyle({fillColor: '#404040', color: '#202020', weight: 3});
+					    } else {
+						    try {
+							    layer.setStyle({fillColor: '#dddddd', color: '#333333', weight: 1, fillOpacity: 0.8});
+						    	//map.removeLayer(feature);
+						    	//feature.geometry.style.display = 'none';
+						    } catch (err) {}
+						}
+					}
+				}
+			});
+			shpfile.addTo(map);
+			shpfile.once("data:loaded", function() {
+				console.log("finished loaded shapefile");
+			});
+		});
+
+	</script>
+</body>
+</html>
