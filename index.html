@@ -3,7 +3,11 @@
 <head>
 	<title>Asyl.me</title>
 
+	<!--
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+	-->
+	<link rel="stylesheet" href="static/css/leaflet.css" />
+
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="static/css/screen.css" />
 	<!--
@@ -11,7 +15,13 @@
 	<link rel="stylesheet" href="static/css/MarkerCluster.Default.css" />
 	-->
 
+	<!--
 	<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+	-->
+
+	<script src="static/js/leaflet.1.0.js"></script>
+
+	<script src="static/js/leaflet.curve.js"></script>
 
 	<script src="static/js/shp.min.js"></script>
 	<script src="static/js/leaflet.shpfile.js"></script>
@@ -57,10 +67,32 @@
 			layers: [tiles]
 		});
 
+
+		var AU = {
+			lat: 47.683,
+			lng: 14.912
+		};
+
+		/*
+		//get the countries
+		var countries;
+		$.getJSON('data/country/country.json', function (data) {
+			countries = data;
+			$(document).trigger('asylme:countryloaded');
+		});
+		$(document).on('asylme:countryloaded', function() {
+			var i = 0, s = countries.length;
+			var factor;
+			for (i = 0; i < s; i++) {
+			}
+		});
+		*/
+
 		$(document).ready(function(){
+
 			var shpfile = new L.Shapefile('static/shape/TM_WORLD_BORDERS_SIMPL-0.3.zip', {
 				onEachFeature: function(feature, layer) {
-					console.log('feature', feature);
+					//console.log('feature', feature);
 					if (feature.properties) {
 					    if (['AT'].indexOf(feature.properties.ISO2) !== -1) {
 							layer.bindPopup(Object.keys(feature.properties).map(function(k) {
@@ -76,6 +108,21 @@
 								maxHeight: 200
 							});
 							layer.setStyle({fillColor: '#404040', color: '#202020', weight: 3});
+
+							//add the path
+							var factor_lat = Math.abs(feature.properties.LAT - AU.lat) / 3;
+							var factor_lng = Math.abs(feature.properties['LON'] - AU.lng) / 3;
+							//if (feature.properties['LAT'] > AU.lat) {factor_lat = -1 * factor_lat;}
+							var path = L.curve(['M',[feature.properties['LAT'], feature.properties['LON']],
+									'C',[feature.properties['LAT'] + factor_lat, (AU.lng + 2*factor_lng) * 1.2],
+										[AU.lat + factor_lat, (AU.lng + factor_lng) * 1.2],
+										[AU.lat, AU.lng]
+									],
+									{color:'#44A6A2',zIndex:999999,fill:false,opacity:0.8}).addTo(map);
+							try {
+								path.bringToFront();
+							} catch (err) {}
+
 					    } else {
 						    try {
 							    layer.setStyle({fillColor: '#dddddd', color: '#333333', weight: 1, fillOpacity: 0.8});
@@ -89,7 +136,10 @@
 			shpfile.addTo(map);
 			shpfile.once("data:loaded", function() {
 				console.log("finished loaded shapefile");
+				//remove loading anim
+				$('#map').css('background-image', 'none');
 			});
+
 		});
 
 	</script>
