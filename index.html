@@ -43,7 +43,7 @@
 		// zoom level config
 		// ----------
 		var zoom_level = 3,
-            minZoom = 3,
+            minZoom = 2,
 			maxZoom = 17;
 		// ----------
 
@@ -133,17 +133,24 @@
 					var i = 0,
 						s = countries.length,
 						country;
-					console.log(countries);
 					for (i = 0; i < s; i++) {
 						country = countries[i];
 						//add the path
 						var factor_lat = Math.abs(country.LAT - AU.lat) / 3;
 						var factor_lng = Math.abs(country['LON'] - AU.lng) / 3;
-						//if (country['LAT'] > AU.lat) {factor_lat = -1 * factor_lat;}
-						var path = L.curve(['M',[country['LAT'], country['LON']],
-								'C',[country['LAT'] + factor_lat, (AU.lng + 2*factor_lng) * 1.2],
-									[AU.lat + factor_lat, (AU.lng + factor_lng) * 1.2],
-									[AU.lat, AU.lng]
+						if (country['LAT'] > AU.lat) {factor_lat = -1 * factor_lat;}
+						if (country['LON'] < AU.lng) {factor_lng = -1 * factor_lng;}
+						var path = L.curve([
+								/*
+									'M',[country['LAT'], country['LON']],
+									'C',[country['LAT'] + , (AU.lng + 2*factor_lng) * 1.2],
+										[AU.lat + factor_lat, (AU.lng + factor_lng) * 1.2],
+										[AU.lat, AU.lng]
+								*/
+									'M',[country['LAT'], country['LON']],
+									'C',[country['LAT'] + factor_lat, country['LON'] + factor_lng],
+										[AU.lat + factor_lat, AU.lng + factor_lng],
+										[AU.lat, AU.lng]
 								],
 								{color:'#44A6A2',zIndex:999999,fill:false,opacity:0.8}).addTo(map);
 						try {
