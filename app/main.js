@@ -25,6 +25,8 @@ $(document).ready(function(){
 
     var countries = [];
 
+    var filterCountries = ['SY', 'AF', 'IQ', 'PK', 'IR', 'SO', 'RU', 'NG', 'DZ', 'BD', 'UA', 'MA', 'IN'];
+
     var shpfile = new L.Shapefile('static/shape/TM_WORLD_BORDERS_SIMPL-0.3.zip', {
         onEachFeature: function(feature, layer) {
             //console.log('feature', feature);
@@ -38,7 +40,7 @@ $(document).ready(function(){
                     });
                     layer.setStyle({fillColor: '#FF0000', color: '#AA9999', weight: 3, fillOpacity: 0.8});
 
-                } else if (['SY', 'AF', 'IQ', 'PK', 'IR', 'SO', 'RU', 'NG', 'DZ', 'BD', 'UA', 'MA', 'IN'].indexOf(feature.properties.ISO2) !== -1) {
+                } else if (filterCountries.indexOf(feature.properties.ISO2) !== -1) {
 
                     layer.bindPopup(Object.keys(feature.properties).map(function(k) {
                         return k + ": " + feature.properties[k];
