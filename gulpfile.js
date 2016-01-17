@@ -42,6 +42,8 @@ gulp.task('compressjs', function() {
         'static/js/leaflet.curve.js',
         'static/js/shp.min.js',
         'static/js/leaflet.shpfile.js',
+        //'static/js/globalize.js',
+        //'static/js/globalize/message.js',
         'app/main.js'
     ])
     .pipe(concat('scripts.min.js'))

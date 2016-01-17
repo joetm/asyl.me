@@ -87,7 +87,7 @@ select {
 
 #loader {
 	width:100%;
-	height:500px;
+	height:100%;
 	opacity:0.5;
 	color:#808080;
 	background-color:#FFFFFF;

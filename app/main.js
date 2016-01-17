@@ -72,11 +72,12 @@ $(document).ready(function(){
             country;
         for (i = 0; i < s; i++) {
             country = countries[i];
-            //add the path
+            //TODO: the curve behavior must be based on four quadrants
             var factor_lat = Math.abs(country.LAT - AU.lat) / 3;
             var factor_lng = Math.abs(country['LON'] - AU.lng) / 3;
             if (country['LAT'] > AU.lat) {factor_lat = -1 * factor_lat;}
             if (country['LON'] < AU.lng) {factor_lng = -1 * factor_lng;}
+            //add the path
             var path = L.curve([
                         'M',[country['LAT'], country['LON']],
                         'C',[country['LAT'] + factor_lat, country['LON'] + factor_lng],
@@ -95,7 +96,7 @@ $(document).ready(function(){
             top: "+=-10000",
             height: "toggle"
         }, 1000, function() {
-            // Animation complete.
+            $('#loader').remove();
         });
 
     });
