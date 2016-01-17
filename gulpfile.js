@@ -49,23 +49,12 @@ gulp.task('compressjs', function() {
     .pipe(gulp.dest('static/js/'));
 });
 
-
-//css
-/*
-gulp.task('scss', function () {
-  gulp.src('frontend/css/*.scss')
-    .pipe(sass().on('error', sass.logError))
-    .pipe(gulp.dest('frontend/css'));
-});
-*/
-
 gulp.task('compresscss', function() {
   return gulp.src([
         'static/css/leaflet.css',
-        'static/css/screen.css',
-        'static/images/favicon.ico'
+        'static/css/screen.css'
     ])
-    .pipe(concat('style.min.css'))
+    .pipe(concat('styles.min.css'))
     .pipe(minifyCSS())
     .pipe(gulp.dest('static/css/'));
 });
