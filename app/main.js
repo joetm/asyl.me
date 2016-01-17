@@ -16,8 +16,7 @@ $(document).ready(function(){
             minZoom: minZoom,
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         }),
-        latlng = L.latLng(47.683, 14.912);
-
+        latlng = L.latLng(AU.lat, AU.lng);
     var map = L.map('map', {
         center: latlng,
         zoom: zoom_level,
@@ -102,12 +101,3 @@ $(document).ready(function(){
     });
 
 });
-
-
-//angular2
-(function(app) {
-        document.addEventListener('DOMContentLoaded', function() {
-        ng.platform.browser.bootstrap(app.LoaderComponent);
-        ng.platform.browser.bootstrap(app.MapComponent);
-    });
-})(window.app || (window.app = {}));

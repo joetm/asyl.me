@@ -3,51 +3,27 @@
 <head>
 	<title>Asyl.me</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 	<link rel="stylesheet" href="static/css/leaflet.css" />
-
 	<link rel="stylesheet" href="static/css/screen.css" />
-	<!--
-	<link rel="stylesheet" href="static/css/MarkerCluster.css" />
-	<link rel="stylesheet" href="static/css/MarkerCluster.Default.css" />
-	-->
+	<link rel="shortcut icon" href="static/images/favicon.ico">
+</head>
+<body>
+
+	<div id="progress"><div id="progress-bar"></div></div>
+
+	<div id="header"> <h1>Asyl-Statistik</h1> </div>
+
+	<div id="loader"></div>
+
+	<div id="map" style="height:100%;margin:0 auto;width:100%;"></div>
+
+	<script src="static/js/jquery.min.js"></script>
 
 	<script src="static/js/leaflet.1.0.js"></script>
 	<script src="static/js/leaflet.curve.js"></script>
 	<script src="static/js/shp.min.js"></script>
 	<script src="static/js/leaflet.shpfile.js"></script>
 
-	<!--
-	<script src="static/js/leaflet.markercluster-src.js"></script>
-	-->
-
-	<script src="static/js/jquery.min.js"></script>
-
-	<link rel="shortcut icon" href="static/images/favicon.ico">
-
-</head>
-<body>
-
-	<div id="progress"><div id="progress-bar"></div></div>
-
-	<div id="header">
-
-		<h1>Asyl-Statistik</h1>
-
-		<my-app>Loading...</my-app>
-
-	</div>
-
-	<div id="loader">Loading...</div>
-
-	<div id="map" style="height:100%;margin:0 auto;width:100%;"></div>
-
-    <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
-    <script src="node_modules/rxjs/bundles/Rx.umd.js"></script>
-    <script src="node_modules/angular2/bundles/angular2-all.umd.js"></script>
-
-    <script src='app/loader.component.js'></script>
-    <script src='app/map.component.js'></script>
 	<script type="text/javascript" src="app/main.js"></script>
 
 </body>

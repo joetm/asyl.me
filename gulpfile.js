@@ -1,0 +1,86 @@
+var gulp = require('gulp'),
+    uglify = require('gulp-uglify'),
+    concat = require('gulp-concat'),
+    watch = require('gulp-watch'),
+    //batch = require('gulp-batch'),
+    //sourcemaps = require('gulp-sourcemaps'),
+    sass = require('gulp-sass'),
+    //less = require('gulp-less'),
+    minifyCSS = require('gulp-minify-css'),
+    //clean = require('gulp-clean'), //deprecated in favor of del
+    //del = require('del'),
+    rename = require('gulp-rename'),
+    gutil = require('gulp-util'),
+    //jshint = require('gulp-jshint');
+    //jslint = require('gulp-jslint');
+    jslint = require('gulp-jslint-simple');
+
+
+gulp.task('jslint', function () {
+    gulp.src([
+        'app/**/*.js'
+    ])
+    .pipe(jslint.run({
+        node: true,
+        nomen: true,
+        vars: true,
+        unparam: true,
+        errorsOnly: false
+    }))
+    .pipe(jslint.report({
+        //add a beep for jslint with gutil
+        //reporter: function (a) { gutil.beep(); var rep = require('jshint-stylish').reporter; rep(a); }
+        reporter: require('jshint-stylish').reporter
+    }));
+});
+
+
+gulp.task('compressjs', function() {
+    return gulp.src([
+        'static/js/jquery.min.js',
+        'static/js/leaflet.1.0.js',
+        'static/js/leaflet.curve.js',
+        'static/js/shp.min.js',
+        'static/js/leaflet.shpfile.js',
+        'app/main.js'
+    ])
+    .pipe(concat('scripts.min.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('static/js/'));
+});
+
+
+//css
+/*
+gulp.task('scss', function () {
+  gulp.src('frontend/css/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('frontend/css'));
+});
+*/
+
+gulp.task('compresscss', function() {
+  return gulp.src([
+        'static/css/leaflet.css',
+        'static/css/screen.css',
+        'static/images/favicon.ico'
+    ])
+    .pipe(concat('style.min.css'))
+    .pipe(minifyCSS())
+    .pipe(gulp.dest('static/css/'));
+});
+
+
+/**********tasks***********/
+gulp.task('css', ['compresscss']);
+gulp.task('js', ['compressjs']);
+gulp.task('build', ['css', 'js']);
+//watch
+gulp.task('watch', ['js', 'css'], function () {
+    //css
+    gulp.watch([
+        "./static/css/**/*.css"
+    ], ['css']);
+    //js
+    gulp.watch(["./app/**/*.js"], ['js']);
+});
