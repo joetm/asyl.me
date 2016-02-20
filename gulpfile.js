@@ -34,8 +34,7 @@ gulp.task('jslint', function () {
     }));
 });
 
-
-gulp.task('compressjs', function() {
+gulp.task('compressjs', function () {
     return gulp.src([
         'static/js/jquery.min.js',
         'static/js/leaflet.1.0.js',
@@ -51,7 +50,7 @@ gulp.task('compressjs', function() {
     .pipe(gulp.dest('static/js/'));
 });
 
-gulp.task('compresscss', function() {
+gulp.task('compresscss', function () {
   return gulp.src([
         'static/css/leaflet.css',
         'static/css/screen.css'
@@ -66,12 +65,13 @@ gulp.task('compresscss', function() {
 gulp.task('css', ['compresscss']);
 gulp.task('js', ['compressjs']);
 gulp.task('build', ['css', 'js']);
+gulp.task('default', ['css', 'js']);
 //watch
 gulp.task('watch', ['js', 'css'], function () {
-    //css
+    gulp.watch([
+        "./app/*.js"
+    ], ['compressjs']);
     gulp.watch([
         "./static/css/**/*.css"
-    ], ['css']);
-    //js
-    gulp.watch(["./app/**/*.js"], ['js']);
+    ], ['compresscss']);
 });
