@@ -46,7 +46,7 @@ gulp.task('compressjs', function () {
         'app/main.js'
     ])
     .pipe(concat('scripts.min.js'))
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(gulp.dest('static/js/'));
 });
 
@@ -67,7 +67,7 @@ gulp.task('js', ['compressjs']);
 gulp.task('build', ['css', 'js']);
 gulp.task('default', ['css', 'js']);
 //watch
-gulp.task('watch', ['js', 'css'], function () {
+gulp.task('watch', ['compressjs', 'compresscss'], function () {
     gulp.watch([
         "./app/*.js"
     ], ['compressjs']);
