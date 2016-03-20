@@ -46,11 +46,17 @@ body {
 	height:100%;
 	opacity:0.5;
 	color:#808080;
-	background-image:url(../images/loading.gif);
+	background-image:url(../static/images/loading.gif);
 	background-position:center center;
 	background-repeat:no-repeat;
 	background-size:contain;
 }
+	#loader.done{
+		transition: height .25s ease-in-out; /*linear*/
+		-moz-transition: height .25s ease-in-out;
+		-webkit-transition: height .25s ease-in-out;
+		height:0;
+	}
 
 /*
 @media (max-width: 768px) {

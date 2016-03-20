@@ -22,6 +22,7 @@ var defaultStyle = {
     fillOpacity: 0.8
 };
 
+
 $(function(){
 
 
@@ -40,7 +41,6 @@ $(function(){
                                     '<input type="checkbox" name="bordercrossings" value="1" /> Show border crossings' +
                                 '</label>' +
                             '</div>';
-
 
 
 
@@ -80,6 +80,8 @@ $(function(){
     */
 
     function initApp(data, tabletop) {
+
+        $('#loader').addClass('done');
 
         // remove_loader();
 
@@ -238,22 +240,29 @@ $(function(){
     }
 
 
-    // Happiness
-    Tabletop.init({
-        key: "1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04",
-        callback: initApp,
-        simpleSheet: true
-    });
+    try {
 
-    // GDP
-    /*
-    Tabletop.init({
-        key: "1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o",
-        callback: initApp,
-        simpleSheet: true
-    });
-    */
+        // Happiness
+        Tabletop.init({
+            key: "1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04",
+            callback: initApp,
+            simpleSheet: true
+        });
 
+        // GDP
+        /*
+        Tabletop.init({
+            key: "1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o",
+            callback: initApp,
+            simpleSheet: true
+        });
+        */
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('map').innerHTML = 'Error: '+err;
+        return;
+    }
 
 
     // selector change
@@ -261,5 +270,6 @@ $(function(){
         alert('reloading');
         console.log('reloading');
     });
+
 
 });
