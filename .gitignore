@@ -1,4 +1,10 @@
 node_modules/**/*
 
-BAK
+OLD
 
+cmd
+
+data/links
+data/png
+data/src
+data/acquire_data.py

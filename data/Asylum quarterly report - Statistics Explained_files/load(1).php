@@ -1,2 +1,0 @@
-﻿.mpm-new-article{min-height:140px;margin-bottom:10px;font-size:11px}.mpm-new-article h3{padding-top:0px;padding-left:1px;margin-left:0px;padding-bottom:0px}.statistical_themes_box a{font-size:11px}.references a{word-break:break-all;word-wrap:break-word;text-overflow:ellipsis}
-/* cache key: STAT_EXP_3:resourceloader:filter:minify-css:7:27e242e6e6769e3aad87628f39dddcf3 */
