@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/joetm/asyl.me#readme",
   "devDependencies": {
+    "bluebird": "^3.3.4",
     "scraperjs": "^1.2.0"
   }
 }

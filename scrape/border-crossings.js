@@ -7,7 +7,7 @@ var scraperjs = require('scraperjs');
 var scraper = scraperjs.StaticScraper;
 
 
-// TODO: use q.all([loadSomething(), loadAnotherThing()])
+// TODO: use $.Deferred
 // http://taoofcode.net/promise-anti-patterns/
 
 
