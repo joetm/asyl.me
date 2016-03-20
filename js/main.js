@@ -216,7 +216,6 @@ $(function(){
                     }
                     layer.on("click", function (e) {
                         // console.log(this.feature.properties.name, this.options.fillColor);
-
                         info_detail._container.innerHTML = info_detailFn({name: this.feature.properties.name});
 
                     });
