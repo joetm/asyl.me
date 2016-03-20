@@ -24,6 +24,26 @@ var defaultStyle = {
 
 $(function(){
 
+
+    var templates = {};
+    templates.info_detail = '<div class="info">' +
+                                '{{=it.name}}' +
+                            '</div>';
+    templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
+                                '<select>' +
+                                    '<option value="happiness" selected="selected">World Happiness Index</option>' +
+                                    '<option value="gdp">GDP per capita</option>' +
+                                '</select>' +
+                            '</div>' +
+                            '<div class="col-2 col-xs-12 col-sm-6">' +
+                                '<label>' +
+                                    '<input type="checkbox" name="bordercrossings" value="1" /> Show border crossings' +
+                                '</label>' +
+                            '</div>';
+
+
+
+
     var remove_loader = function () {
         // $('body').css('background-color', '#FFFFFF');
         $('body').css({
@@ -161,17 +181,26 @@ $(function(){
         legend.addTo(map);
 
 
-        var legend = L.control({position: 'bottomleft'});
-        legend.onAdd = function (map) {
+        var info_options = L.control({position: 'bottomleft'});
+        info_options.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info selector');
-            div.innerHTML +=
-                    '<select>' +
-                        '<option value="happiness" selected="selected">World Happiness Index</option>' +
-                        '<option value="gdp">GDP per capita</option>' +
-                    '</select>'
+            div.innerHTML = templates.info_options;
             return div;
         };
-        legend.addTo(map);
+        info_options.addTo(map);
+
+
+
+        var info_detailFn = doT.template(templates.info_detail);
+
+
+        var info_detail = L.control({position: 'topright'});
+        info_detail.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info detail');
+            div.innerHTML = info_detailFn({name: 'ertrrrr'});
+            return div;
+        };
+        info_detail.addTo(map);
 
 
 
@@ -186,7 +215,10 @@ $(function(){
                         });
                     }
                     layer.on("click", function (e) {
-                        console.log(this.feature.properties.name, this.options.fillColor);
+                        // console.log(this.feature.properties.name, this.options.fillColor);
+
+                        info_detail._container.innerHTML = info_detailFn({name: this.feature.properties.name});
+
                     });
                     /*
                     layer.on("mouseover", function (e) {
@@ -207,12 +239,22 @@ $(function(){
     }
 
 
-    // get the happiness data from Google Sheets
+    // Happiness
     Tabletop.init({
         key: "1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04",
         callback: initApp,
         simpleSheet: true
     });
+
+    // GDP
+    /*
+    Tabletop.init({
+        key: "1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o",
+        callback: initApp,
+        simpleSheet: true
+    });
+    */
+
 
 
     // selector change
