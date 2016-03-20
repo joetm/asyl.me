@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "scrape": "casperjs scrape/border-crossings.js",
+    "scrape": "node scrape/border-crossings.js",
+    "casperjs": "casperjs scrape/border-crossings.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/joetm/asyl.me/issues"
   },
-  "homepage": "https://github.com/joetm/asyl.me#readme"
+  "homepage": "https://github.com/joetm/asyl.me#readme",
+  "devDependencies": {
+    "scraperjs": "^1.2.0"
+  }
 }
