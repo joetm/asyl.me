@@ -6,6 +6,9 @@ var scraperjs = require('scraperjs');
 
 var scraper = scraperjs.StaticScraper;
 
+console.log('Scraping wikipedia border crossings');
+console.log('This will take a while...', "\n");
+
 
 // TODO: use $.Deferred
 // http://taoofcode.net/promise-anti-patterns/
@@ -15,13 +18,16 @@ var scraper = scraperjs.StaticScraper;
 scraper.create('https://en.wikipedia.org/wiki/Category:International_border_crossings')
     .scrape(function($) {
         return $("#mw-subcategories ul li a").map(function() {
-            return domain + $(this).attr('href');
+            return {
+                country: $(this).text().replace('Border crossings of ', ''),
+                link: domain + $(this).attr('href')
+            };
         }).get();
-    }).then(function(country_links) {
-        // console.log(country_links);
-        for (var i = 0, s = country_links.length; i < s; i++) {
+    }).then(function(countries) {
+        // console.log(countries);
+        for (var i = 0, s = countries.length; i < s; i++) {
             // scrape the country-level borders
-            scraper.create(country_links[i])
+            scraper.create(countries[i].link)
                 .scrape(function($) {
                     return $("#mw-subcategories ul li a").map(function() {
                         return domain + $(this).attr('href');
@@ -43,15 +49,32 @@ scraper.create('https://en.wikipedia.org/wiki/Category:International_border_cros
                                     // scrape the specific border crossing
                                     scraper.create(border_crossings[k])
                                         .scrape(function($) {
-                                            var b = {};
-                                                b.name = $('#firstHeading').text();
-                                                b.latitude = $('.latitude').first().text();
-                                                b.longitude = $('.longitude').first().text();
+
+                                            var geo_page = $('#coordinates a.external').attr('href');
+                                            // go one step further to fetch the un-formatted coords
+                                            var b = scraper.create(geo_page)
+                                                .scrape(function($) {
+                                                    return $("#mw-pages ul li a").map(function() {
+                                                        return domain + $(this).attr('href');
+                                                    }).get();
+                                                }).then(function(border_crossings) {
+                                                    return {
+                                                        latitude:  $('.geo').first().find('.latitude').text(),
+                                                        longitude: $('.geo').first().find('.longitude').text()
+                                                    };
+                                                });
+
+                                            // capture the name of the border crossing
+                                            b.name = $('#firstHeading').text();
+
                                             console.log(b);
                                             return b;
+
                                     }).then(function(b) {
-                                         console.log(b);
-                                         // save the border crossings...
+
+                                        // console.log(b);
+
+                                        // save the border crossings...
 
 
 

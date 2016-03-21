@@ -22,6 +22,19 @@ var defaultStyle = {
     fillOpacity: 0.8
 };
 
+// some of the countries do not match
+var remapping = {
+    'United States': 'United States of America',
+    'Tanzania': 'United Republic of Tanzania',
+    'Serbia': 'Republic of Serbia'
+};
+
+var shades = [];
+
+var happiness;
+var min;
+var max = 0;
+
 
 $(function(){
 
@@ -79,7 +92,7 @@ $(function(){
     });
     */
 
-    function initApp(data, tabletop) {
+    function initApp() {
 
         $('#loader').addClass('done');
 
@@ -99,171 +112,196 @@ $(function(){
             layers: [tiles]
         });
 
-        // console.log(data);
-
-        var i = 0,
-            s = data.length;
-
-        var min;
-        var max = 0;
-        for (i = 0; i < s; i++) {
-            max = Math.max(max, data[i].Happiness);
-            if (!min) {
-                min = data[i].Happiness;
-            } else {
-                min = Math.min(min, data[i].Happiness);
-            }
-        }
-        console.log('min(Happiness)', min);
-        console.log('max(Happiness)', max);
-
-        // some of the countries do not match
-        remapping = {
-            'United States': 'United States of America',
-            'Tanzania': 'United Republic of Tanzania',
-            'Serbia': 'Republic of Serbia'
-        };
-
-        // create a shading range
-        var shades = [];
-        for (i = 0; i < s; i++) {
-            // console.log(remapping[data[i]['Country']]);
-            if (remapping[data[i]['Country']] !== undefined) {
-                data[i]['Country'] = remapping[data[i]['Country']];
-                console.log('remapped', data[i]);
-            }
-            shades[data[i]['Country']] = 100 - data[i].Happiness / max * 100;
-        }
-        // console.log(shades);
 
 
-        // info
-        /*
-        var info = L.control();
-        info.onAdd = function (map) {
-            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-            this.update();
-            return this._div;
-        };
-        // method that we will use to update the control based on feature properties passed
-        info.update = function (props) {
-            this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-                '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-                : 'Hover over a state');
-        };
-        info.addTo(map);
-        */
+        var hajax = $.ajax({
+            url: 'data/happiness/world-happiness-index.csv',
+            dataType: "text"
+        });
+        hajax.done(function (data) {
 
-        // -------
-        // legend
-        function getLegendColor(d){
-            return 'hsl(66, 22%, ' + (d * 10) + '%)';
-        }
-        var legend = L.control({position: 'bottomright'});
-        legend.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info legend'),
-                // generate integer range
-                // see http://stackoverflow.com/a/10050831/426266
-                grades = Array.apply(null, Array(parseInt(max + 1, 10))).map(function (_, i) {return i;}); // [0, 1, 2, 3, 4, 5, 6, 7],
-                labels = [];
-            // console.log(grades);
-            // header?
-            // div.innerHTML += '<div>Happiness<br />Index</div>';
-            // color for countries with no data:
-            div.innerHTML +=
-                '<div><i style="background:'+defaultStyle.fillColor+'"></i> ?' + '</div>';
-            // loop through shades intervals and generate a label with a colored square for each interval
-            for (var i = 1; i < grades.length; i++) {
-                div.innerHTML +=
-                    '<div><i style="background:' + getLegendColor(grades[i] + 1) + '"></i> ' +
-                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] : '+')+'</div>';
-            }
-            return div;
-        };
-        legend.addTo(map);
+            // console.log(data);
+            if (!data) return;
 
+            var parsed_happiness = [],
+                tmp,
+                keys;
 
-        var info_options = L.control({position: 'bottomleft'});
-        info_options.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info selector');
-            div.innerHTML = templates.info_options;
-            return div;
-        };
-        info_options.addTo(map);
+            // split into rows
+            data = data.split("\n");
 
+            // get the keys
+            keys = data[0].split(",").map(function (key) { return key.replace(/"/g, ''); });
+            // remove the header row
+            delete data[0];
+            // console.log(keys);
 
-
-        var info_detailFn = doT.template(templates.info_detail);
-
-
-        var info_detail = L.control({position: 'topright'});
-        info_detail.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info detail');
-            div.innerHTML = info_detailFn({name: 'ertrrrr'});
-            return div;
-        };
-        info_detail.addTo(map);
-
-
-
-        $.getJSON("data/country/countries.geojson", function(data) {
-            L.geoJson([data], {
-                style: defaultStyle,
-                onEachFeature: function(feature, layer) {
-                    // console.log(feature.properties.name, (max*10 - shades[feature.properties.name]));
-                    if (shades[feature.properties.name] !== undefined) {
-                        layer.setStyle({
-                            fillColor: 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)'
-                        });
+            // loop through the rows
+            for (var i = 0, s = data.length; i < s; i++) {
+                if (data[i] === undefined) continue;
+                data[i] = data[i].split(',');
+                // console.log(data[i][2]);
+                // loop through keys
+                tmp = {};
+                for (var j = 0, t = keys.length; j < t; j++) {
+                    if (data[i][j] === undefined) {
+                        continue;
                     }
-                    layer.on("click", function (e) {
-                        // console.log(this.feature.properties.name, this.options.fillColor);
-                        info_detail._container.innerHTML = info_detailFn({name: this.feature.properties.name});
-
-                    });
-                    /*
-                    layer.on("mouseover", function (e) {
-                        // console.log(layer.options.style);
-                        layer.options.origstyle = layer.options.style;
-                        layer.setStyle(highlightStyle);
-                    });
-                    layer.on("mouseout", function (e) {
-                        // console.log('origstyle', layer.options.origstyle);
-                        layer.setStyle(layer.options.origstyle);
-                    });
-                    */
+                    tmp[keys[j]] = data[i][j];
                 }
-            }).addTo(map);
+                parsed_happiness.push(tmp);
+            }
+
+            //convert the number strings
+            happiness = parsed_happiness.map(function (obj) {
+                obj.Rank = parseInt(obj.Rank, 10);
+                obj.Score = parseFloat(obj.Score);
+                return obj;
+            });
+
+            // console.log(happiness);
+
+            for (var i = 0, s = happiness.length; i < s; i++) {
+                max = Math.max(max, happiness[i].Score);
+                if (!min) {
+                    min = happiness[i].Score;
+                } else {
+                    min = Math.min(min, happiness[i].Score);
+                }
+            }
+            console.log('min(Happiness)', min);
+            console.log('max(Happiness)', max);
+
+            // create a shading range
+            for (var i = 0, s = happiness.length; i < s; i++) {
+                // console.log(remapping[happiness[i]['Country']]);
+                if (remapping[happiness[i]['Country']] !== undefined) {
+                    data[i]['Country'] = remapping[happiness[i]['Country']];
+                    console.log('remapped', happiness[i]);
+                }
+                shades[happiness[i]['Country']] = 100 - happiness[i].Score / max * 100;
+            }
+            // console.log(shades);
+
+
+            // -------
+            // legend
+            function getLegendColor(d){
+                return 'hsl(66, 22%, ' + (d * 10) + '%)';
+            }
+            var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'info legend'),
+                    // generate integer range
+                    // see http://stackoverflow.com/a/10050831/426266
+                    grades = Array.apply(null, Array(parseInt(max + 1, 10))).map(function (_, i) {return i;}); // [0, 1, 2, 3, 4, 5, 6, 7],
+                    labels = [];
+                // console.log(grades);
+                // header?
+                // div.innerHTML += '<div>Happiness<br />Index</div>';
+                // color for countries with no data:
+                div.innerHTML +=
+                    '<div><i style="background:'+defaultStyle.fillColor+'"></i> ?' + '</div>';
+                // loop through shades intervals and generate a label with a colored square for each interval
+                for (var i = 1; i < grades.length; i++) {
+                    div.innerHTML +=
+                        '<div><i style="background:' + getLegendColor(grades[i] + 1) + '"></i> ' +
+                        grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] : '+')+'</div>';
+                }
+                return div;
+            };
+            legend.addTo(map);
+
+
+            var info_options = L.control({position: 'bottomleft'});
+            info_options.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'info selector');
+                div.innerHTML = templates.info_options;
+                return div;
+            };
+            info_options.addTo(map);
+
+
+
+            var info_detailFn = doT.template(templates.info_detail);
+
+
+            var info_detail = L.control({position: 'topright'});
+            info_detail.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'info detail');
+                div.innerHTML = info_detailFn({name: 'ertrrrr'});
+                return div;
+            };
+            info_detail.addTo(map);
+
+
+
+            $.getJSON("data/country/countries.geojson", function(data) {
+                L.geoJson([data], {
+                    style: defaultStyle,
+                    onEachFeature: function(feature, layer) {
+                        // console.log(feature.properties.name, (max*10 - shades[feature.properties.name]));
+                        if (shades[feature.properties.name] !== undefined) {
+                            layer.setStyle({
+                                fillColor: 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)'
+                            });
+                        }
+                        layer.on("click", function (e) {
+                            // console.log(this.feature.properties.name, this.options.fillColor);
+                            info_detail._container.innerHTML = info_detailFn({name: this.feature.properties.name});
+
+                        });
+                        /*
+                        layer.on("mouseover", function (e) {
+                            // console.log(layer.options.style);
+                            layer.options.origstyle = layer.options.style;
+                            layer.setStyle(highlightStyle);
+                        });
+                        layer.on("mouseout", function (e) {
+                            // console.log('origstyle', layer.options.origstyle);
+                            layer.setStyle(layer.options.origstyle);
+                        });
+                        */
+                    }
+                }).addTo(map);
+            });
+
+
         });
 
 
-    }
 
 
+
+
+    }//initApp
+
+
+    initApp();
+
+
+    /*
+    // taking data from Google Sheet with parsed Wikipedia data
+    // this works, but is too likely to break the site when changes are made
     try {
-
         // Happiness
         Tabletop.init({
             key: "1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04",
             callback: initApp,
             simpleSheet: true
         });
-
         // GDP
-        /*
-        Tabletop.init({
-            key: "1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o",
-            callback: initApp,
-            simpleSheet: true
-        });
-        */
-
+        //Tabletop.init({
+        //    key: "1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o",
+        //    callback: initApp,
+        //    simpleSheet: true
+        //});
     } catch (err) {
         console.error(err);
         document.getElementById('map').innerHTML = 'Error: '+err;
         return;
     }
-
+    */
 
     // selector change
     $('.map .info.selector select').on('change', function () {
