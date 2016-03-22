@@ -39,7 +39,8 @@ var remapping = {
 var templates = {};
 templates.info_detail = '<div class="info">' +
                             '<h2>{{=it.name}}</h2>' +
-                            '<div>Happiness: {{=it.happiness}}</div>' +
+                            '<div>Happiness:  {{=it.happiness}}</div>' +
+                            '<div>Population: {{=it.population}}</div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -59,6 +60,7 @@ var info_detailFn = doT.template(templates.info_detail);
 var $happiness = $.Deferred();
 var $shades = $.Deferred();
 var $countries = $.Deferred();
+var $population = $.Deferred();
 
 var $min = $.Deferred();
 var $max = $.Deferred();
@@ -91,7 +93,8 @@ $(function(){
     // -------------------------------------------------------------
     // AJAX queries
     // -------------------------------------------------------------
-    // get the happiness data
+    // Happiness index
+    // https://docs.google.com/spreadsheets/d/1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04/pub?output=csv
     var $happiness_query = $.ajax({
         url: 'data/happiness/world-happiness-index.csv',
         dataType: "text"
@@ -99,8 +102,17 @@ $(function(){
         .fail(function (msg) {
             console.error(msg);
         });
-    // get the country shapes
+    // Country shapes
     var $country_query = $.getJSON("data/country/countries.geojson")
+        .fail(function (msg) {
+            console.error(msg);
+        });
+    // World population
+    // https://docs.google.com/spreadsheets/d/1-lhti1yTM5CjlMTz3Hc_VqEnVTxbhoIS8WjUetmIWHs/pub?output=csv
+    var $population_query = $.ajax({
+            url: "data/population/population.csv",
+            dataType: "text"
+    })
         .fail(function (msg) {
             console.error(msg);
         });
@@ -118,6 +130,68 @@ $(function(){
     });
 
 
+    $.when($population_query).done(function (population_data) {
+        if (!population_data) {
+            $population.reject('Could not load population data');
+            return;
+        }
+        population_data = population_data.split("\n");
+        population_data = population_data.map(function (p) {
+            return p.replace(/"/g, '').split(',');
+        });
+        // convert the array into a keyed object
+        var population = {};
+        var tmp;
+        var keys = population_data[0].map(function (key) { return key.replace(/"/g, ''); });
+        // rewrite the country key
+        for (var j = 0, t = keys.length; j < t; j++) {
+            // console.log(keys[j]);
+            if (keys[j] == 'Country (or dependent territory)') {
+                keys[j] = 'Country';
+                break;
+            }
+        }
+        // console.log('keys', keys);
+        // remove header row
+        delete population_data[0];
+        for (var i = 0, s = population_data.length; i < s; i++) {
+            if (population_data[i] == undefined) {
+                continue;
+            }
+            tmp = {};
+            for (var j = 0, t = keys.length; j < t; j++) {
+                if (population_data[i][j] === undefined) {
+                    continue;
+                }
+                // rewrite the crappy data from Wikipedia
+                population_data[i][j] = population_data[i][j]
+                                            .replace(/\s*\[Note\s\d+\]/g, '')
+                                            .replace(/\s*\*\([a-z,\.\-\s]+\)\*/gi, '')
+                                            .replace(/[\*\"]/g, '');
+
+                // TODO: fix the population figure
+
+
+
+
+
+
+
+
+                //if (keys[j] !== 'Population') {
+                //    // rewrite population figure
+                //    console.log('fixing number', population_data[i][j]);
+                //    //    population_data[i][j] = population_data[i][j].replace(/[",]/g, '');
+                //}
+                tmp[keys[j]] = population_data[i][j];
+            }
+            population[tmp.Country] = tmp;
+        }
+        console.log('population', population);
+        $population.resolve(population);
+    });
+
+
     $.when($happiness_query).done(function (happiness_data) {
 
         if (!happiness_data) {
@@ -126,15 +200,14 @@ $(function(){
         }
 
         var parsed_happiness = [],
-            tmp,
-            keys;
+            tmp;
 
         // split into rows
         happiness_data = happiness_data.split("\n");
         // console.log('happiness_data', happiness_data);
 
         // get the keys
-        keys = happiness_data[0].split(",").map(function (key) { return key.replace(/"/g, ''); });
+        var keys = happiness_data[0].split(",").map(function (key) { return key.replace(/"/g, ''); });
         // remove the header row
         delete happiness_data[0];
         // console.log(keys);
@@ -266,7 +339,7 @@ $(function(){
 
 
     // process the shapes and shades data
-    $.when($countries, $happiness, $shades, $max, $info_detail).done(function (countries, happiness, shades, max, info_detail) {
+    $.when($countries, $happiness, $population, $shades, $max, $info_detail).done(function (countries, happiness, population, shades, max, info_detail) {
         function get_happiness (countryname) {
             var score = 'unknown';
             for (var i = 0, s = happiness.length; i < s; i++) {
@@ -287,6 +360,11 @@ $(function(){
                 if (!h) {
                     h = 'unknown';
                 }
+                // population
+                var p = false;
+                if (population[feature.properties.name] !== undefined && population[feature.properties.name].Population !== undefined) {
+                    p = population[feature.properties.name].Population;
+                }
                 // shading
                 // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
                 if (shades[feature.properties.name] !== undefined) {
@@ -298,7 +376,8 @@ $(function(){
                     // console.log(this.feature.properties.name, this.options.fillColor);
                     info_detail._container.innerHTML = info_detailFn({
                         name: this.feature.properties.name,
-                        happiness: h
+                        happiness: h,
+                        population: p
                     });
                 });
                 /*
