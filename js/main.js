@@ -51,6 +51,7 @@ templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                                 '<input type="checkbox" name="bordercrossings" value="1" /> Show border crossings' +
                             '</label>' +
                         '</div>';
+var info_detailFn = doT.template(templates.info_detail);
 
 
 
@@ -61,6 +62,7 @@ var $countries = $.Deferred();
 var $min = $.Deferred();
 var $max = $.Deferred();
 
+var $info_detail = $.Deferred();
 
 
 $(function(){
@@ -219,7 +221,6 @@ $(function(){
     // info panel at top right
     // ---------------------
     $.when(templates).done(function (templates) {
-        var info_detailFn = doT.template(templates.info_detail);
         var info_detail = L.control({position: 'topright'});
         info_detail.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info detail');
@@ -227,6 +228,7 @@ $(function(){
             return div;
         };
         info_detail.addTo(map);
+        $info_detail.resolve(info_detail);
     });
 
     // ---------------------
@@ -263,12 +265,12 @@ $(function(){
 
 
     // process the shapes and shades data
-    $.when($countries, $shades, $max).done(function (countries, shades, max) {
+    $.when($countries, $shades, $max, $info_detail).done(function (countries, shades, max, info_detail) {
         // console.log('countries', countries);
         L.geoJson(countries, {
             style: config.defaultStyle,
             onEachFeature: function(feature, layer) {
-                console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
+                // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
                 if (shades[feature.properties.name] !== undefined) {
                     layer.setStyle({
                         fillColor: 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)'
