@@ -41,6 +41,7 @@ templates.info_detail = '<div class="info">' +
                             '<h2>{{=it.name}}</h2>' +
                             '<div>Happiness:  {{=it.happiness}}</div>' +
                             '<div>Population: {{=it.population}}</div>' +
+                            '<div>Population per km<sup>2</sup>: TODO</div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -146,8 +147,13 @@ $(function(){
             return;
         }
 
-        // TODO:
         // process, format and convert the area data into a keyed object
+
+        area_data = area_data.split("\n");
+        area_data = area_data.map(function (p) {
+            return p.replace(/"/g, '').split(',');
+        });
+
 
 
 
@@ -288,6 +294,9 @@ $(function(){
     });
 
 
+    // -------------------------------------------------------------
+
+
     // create an array of color shadings
     $.when($countries, $happiness, $max).done(function (countries, happiness, max) {
         // console.log('building shading');
@@ -350,7 +359,7 @@ $(function(){
             var div = L.DomUtil.create('div', 'info legend'),
                 // generate integer range
                 // see http://stackoverflow.com/a/10050831/426266
-                grades = Array.apply(null, Array(parseInt(max + 1, 10))).map(function (_, i) {return i;}); // [0, 1, 2, 3, 4, 5, 6, 7],
+                grades = Array.apply(null, Array(parseInt(max + 1, 10))).map(function (_, i) {return i;}),
                 labels = [];
             // console.log(grades);
             // header?
@@ -359,9 +368,10 @@ $(function(){
             div.innerHTML +=
                 '<div><i style="background:'+config.defaultStyle.fillColor+'"></i> ?' + '</div>';
             // loop through shades intervals and generate a label with a colored square for each interval
-            for (var i = 1; i < grades.length; i++) {
+            var diff = parseInt(min, 10) + 1;
+            for (var i = diff; i < grades.length; i++) {
                 div.innerHTML +=
-                    '<div><i style="background:' + getLegendColor(grades[i] + 1) + '"></i> ' +
+                    '<div><i style="background:' + getLegendColor(grades[i - diff] + 1) + '"></i> ' +
                     grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] : '+')+'</div>';
             }
             return div;
