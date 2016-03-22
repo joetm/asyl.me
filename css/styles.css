@@ -29,17 +29,22 @@ body {
 	    background-color: rgba(255, 155, 155, 0.7);
 	}
 
-.info.selector select{
-	padding:0.6em;
-}
-.info.selector .col-1{
-	margin-right:1em;
-	margin-left:0;
-}
-.info.selector .col-2{
-	margin-right:-1em;
-	border-left:1px solid #999999;
-}
+.info{}
+	.info h2{
+		padding-top:0;
+		margin-top:0;
+	}
+	.info.selector select{
+		padding:0.6em;
+	}
+	.info.selector .col-1{
+		margin-right:1em;
+		margin-left:0;
+	}
+	.info.selector .col-2{
+		margin-right:-1em;
+		border-left:1px solid #999999;
+	}
 
 #loader {
 	width:100%;

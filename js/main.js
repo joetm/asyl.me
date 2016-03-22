@@ -38,7 +38,8 @@ var remapping = {
 
 var templates = {};
 templates.info_detail = '<div class="info">' +
-                            '{{=it.name}}' +
+                            '<h2>{{=it.name}}</h2>' +
+                            '<div>Happiness: {{=it.happiness}}</div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -192,13 +193,13 @@ $(function(){
         for (var i = 0, s = happiness.length; i < s; i++) {
             // does the country name need to be remapped?
             // console.log(remapping[happiness[i]['Country']]);
-            if (remapping[happiness[i]['Country']] !== undefined) {
-                happiness[i]['Country'] = remapping[happiness[i]['Country']];
+            if (remapping[happiness[i].Country] !== undefined) {
+                happiness[i].Country = remapping[happiness[i].Country];
                 console.log('remapped', happiness[i]);
             }
-            shades[happiness[i]['Country']] = 100 - happiness[i].Score / max * 100;
+            shades[happiness[i].Country] = 100 - happiness[i].Score / max * 100;
         }
-        console.log('shades', shades);
+        // console.log('shades', shades);
         $shades.resolve(shades);
     });
 
@@ -234,6 +235,7 @@ $(function(){
     // ---------------------
     // legend (bottom right)
     // ---------------------
+    // TODO: adjust the colors to match the country shading
     $.when($min, $max).done(function (min, max) {
         function getLegendColor(d){
             return 'hsl(66, 22%, ' + (d * 10) + '%)';
@@ -263,13 +265,29 @@ $(function(){
     });
 
 
-
     // process the shapes and shades data
-    $.when($countries, $shades, $max, $info_detail).done(function (countries, shades, max, info_detail) {
+    $.when($countries, $happiness, $shades, $max, $info_detail).done(function (countries, happiness, shades, max, info_detail) {
+        function get_happiness (countryname) {
+            var score = 'unknown';
+            for (var i = 0, s = happiness.length; i < s; i++) {
+                if (happiness[i].Country === countryname) {
+                    score = happiness[i].Score;
+                    break;
+                }
+            }
+            return score;
+        }
+
         // console.log('countries', countries);
         L.geoJson(countries, {
             style: config.defaultStyle,
             onEachFeature: function(feature, layer) {
+                // get the happiness data
+                var h = get_happiness(feature.properties.name);
+                if (!h) {
+                    h = 'unknown';
+                }
+                // shading
                 // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
                 if (shades[feature.properties.name] !== undefined) {
                     layer.setStyle({
@@ -278,8 +296,10 @@ $(function(){
                 }
                 layer.on("click", function (e) {
                     // console.log(this.feature.properties.name, this.options.fillColor);
-                    info_detail._container.innerHTML = info_detailFn({name: this.feature.properties.name});
-
+                    info_detail._container.innerHTML = info_detailFn({
+                        name: this.feature.properties.name,
+                        happiness: h
+                    });
                 });
                 /*
                 layer.on("mouseover", function (e) {
