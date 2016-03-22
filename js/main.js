@@ -61,6 +61,7 @@ var $happiness = $.Deferred();
 var $shades = $.Deferred();
 var $countries = $.Deferred();
 var $population = $.Deferred();
+var $areas = $.Deferred();
 
 var $min = $.Deferred();
 var $max = $.Deferred();
@@ -116,6 +117,15 @@ $(function(){
         .fail(function (msg) {
             console.error(msg);
         });
+    // Country areas
+    // https://docs.google.com/spreadsheets/d/1KFjJ0AlYqeSOoUP5s8NGq4KUmZF65YeZc6m6WojwOHM/pub?output=csv
+    var $area_query = $.ajax({
+            url: "data/area/countries-area.csv",
+            dataType: "text"
+    })
+        .fail(function (msg) {
+            console.error(msg);
+        });
     // -------------------------------------------------------------
 
 
@@ -129,6 +139,28 @@ $(function(){
         $countries.resolve(countries);
     });
 
+
+    $.when($area_query).done(function (area_data) {
+        if (!area_data) {
+            $population.reject('Could not load area data');
+            return;
+        }
+
+        // TODO:
+        // process, format and convert the area data into a keyed object
+
+
+
+
+
+
+
+
+
+        var areas = area_data;
+        console.log('areas', areas);
+        $areas.resolve(areas);
+    });
 
     $.when($population_query).done(function (population_data) {
         if (!population_data) {
