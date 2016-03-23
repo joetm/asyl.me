@@ -58,6 +58,16 @@ var info_detailFn = doT.template(templates.info_detail);
 
 
 // -------------------------------------------------------------
+// Helpers
+// -------------------------------------------------------------
+
+// based on https://blog.tompawlak.org/number-currency-formatting-javascript
+Number.prototype.formatNumber = function () {
+    var num = this;
+    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
+
+// -------------------------------------------------------------
 
 
 var $happiness = $.Deferred();
@@ -419,8 +429,11 @@ $(function(){
                 }
                 // population
                 var p = false;
-                if (population[feature.properties.name] !== undefined && population[feature.properties.name].Population !== undefined) {
-                    p = population[feature.properties.name].Population;
+                if (
+                    population[feature.properties.name] !== undefined
+                    && population[feature.properties.name].Population !== undefined
+                ) {
+                    p = population[feature.properties.name].Population.formatNumber();
                 }
                 // shading
                 // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
