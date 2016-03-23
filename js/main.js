@@ -364,6 +364,7 @@ $(function(){
         var info_detail = L.control({position: 'topright'});
         info_detail.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info detail');
+            L.DomUtil.addClass(div, 'hidden');
             div.innerHTML = info_detailFn({name: 'Country'});
             return div;
         };
@@ -449,6 +450,8 @@ $(function(){
                         happiness: h,
                         population: p
                     });
+                    // show the info container
+                    L.DomUtil.removeClass(info_detail._container, 'hidden');
                 });
                 /*
                 layer.on("mouseover", function (e) {
