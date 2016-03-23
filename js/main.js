@@ -43,6 +43,7 @@ templates.info_detail = '<div class="info">' +
                             '<div>Population: {{=it.population}}</div>' +
                             '<div>Area (km<sup>2</sup>): {{=it.area}}</div>' +
                             '<div>Population per km<sup>2</sup>: {{=it.ppa}}</div>' +
+                            '<div>GDP-PPP (Int$): {{=it.gdp}}</div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -77,6 +78,7 @@ var $shades = $.Deferred();
 var $countries = $.Deferred();
 var $population = $.Deferred();
 var $areas = $.Deferred();
+var $gdp = $.Deferred();
 
 var $min = $.Deferred();
 var $max = $.Deferred();
@@ -144,6 +146,15 @@ $(function(){
         .fail(function (msg) {
             console.error(msg);
         });
+    // GDP per capita (PPP) - IMF
+    // https://docs.google.com/spreadsheets/d/1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o/pub?output=csv
+    var $gdp_query = $.ajax({
+            url: "data/gdp/gdp.csv",
+            dataType: "text"
+    })
+        .fail(function (msg) {
+            console.error(msg);
+        });
     // -------------------------------------------------------------
 
 
@@ -161,6 +172,31 @@ $(function(){
         $countries.resolve(countries);
     });
 
+    $.when($gdp_query).done(function (gdp_data) {
+        if (!gdp_data) {
+            $gdp_query.reject('Could not load gdp');
+            return;
+        }
+        gdp_data = Papa.parse(gdp_data, {
+                        delimiter: ",",
+                        newline: "",
+                        header: true,
+                        dynamicTyping: true
+            });
+        gdp_data = gdp_data.data;
+        var gdp = {};
+        $.each(gdp_data, function (index, item) {
+            if (typeof item.IntDollar === 'string') {
+                // console.log(item);
+                // fix the number
+                item.IntDollar = parseInt(item.IntDollar.replace(/,/g, ''), 10);
+            }
+            // build the keyed gdp object
+            gdp[item.Country] = item;
+        });
+        console.log('gdp', gdp);
+        $gdp.resolve(gdp);
+    });
 
     $.when($area_query).done(function (area_data) {
         // process, format and convert the area data into a keyed object
@@ -418,7 +454,7 @@ $(function(){
 
 
     // process the shapes and shades data
-    $.when($countries, $happiness, $population, $areas, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, shades, max, info_detail) {
+    $.when($countries, $happiness, $population, $areas, $gdp, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, gdp, shades, max, info_detail) {
         function get_happiness (countryname) {
             var score = 'unknown';
             for (var i = 0, s = happiness.length; i < s; i++) {
@@ -465,6 +501,14 @@ $(function(){
                     }
                     ppa = p / a;
                 }
+                // gdp
+                var g = false;
+                if (
+                    gdp[feature.properties.name] !== undefined
+                    && gdp[feature.properties.name].IntDollar !== undefined
+                ) {
+                    g = gdp[feature.properties.name].IntDollar;
+                }
                 // shading
                 // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
                 if (shades[feature.properties.name] !== undefined) {
@@ -479,7 +523,8 @@ $(function(){
                         happiness: h,
                         population: p.formatNumber(),
                         area: a.formatNumber(),
-                        ppa: ppa.toFixed(2) // round to two decimals
+                        ppa: ppa.toFixed(2), // round to two decimals
+                        gdp: g.formatNumber()
                     });
                     // show the info container
                     L.DomUtil.removeClass(info_detail._container, 'hidden');
