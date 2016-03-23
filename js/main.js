@@ -41,7 +41,7 @@ templates.info_detail = '<div class="info">' +
                             '<h2>{{=it.name}}</h2>' +
                             '<div>Happiness:  {{=it.happiness}}</div>' +
                             '<div>Population: {{=it.population}}</div>' +
-                            '<div>Population per km<sup>2</sup>: TODO</div>' +
+                            '<div>Population per km<sup>2</sup>: {{=it.area}}</div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -65,7 +65,8 @@ var info_detailFn = doT.template(templates.info_detail);
 Number.prototype.formatNumber = function () {
     var num = this;
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-}
+};
+
 
 // -------------------------------------------------------------
 
@@ -161,34 +162,48 @@ $(function(){
 
 
     $.when($area_query).done(function (area_data) {
+        // process, format and convert the area data into a keyed object
         if (!area_data) {
             $population.reject('Could not load area data');
             return;
         }
-
-        // process, format and convert the area data into a keyed object
-
-        area_data = area_data.split("\n");
-        area_data = area_data.map(function (p) {
-            return p.replace(/"/g, '').split(',');
-        });
-
-        // TODO:
-        // 1. fix source to match country names
-        // 2. format area as keyed object
-
-
-
-
-
-
-
-
-
-
-
-
-        var areas = area_data;
+        area_data = Papa.parse(area_data, {
+                        delimiter: ",",
+                        newline: "",
+                        header: true,
+                        dynamicTyping: true
+            });
+        area_data = area_data.data;
+        // console.log('area_data', area_data);
+        var areas = {};
+        var keys = ['Land in km2 (mi2)', 'Total in km2 (mi2)', 'Water in km2 (mi2)'];
+        var newkeys = {
+            'Land in km2 (mi2)': 'Land',
+            'Total in km2 (mi2)': 'Total',
+            'Water in km2 (mi2)': 'Water'
+        };
+        var newkey = '';
+        for (var i = 0, s = area_data.length; i < s; i++) {
+            // split the miles
+            // or remove the miles
+            $.each(keys, function (index, key) {
+                if(
+                    area_data[i].hasOwnProperty(key) &&
+                    typeof area_data[i][key] === 'string'
+                ) {
+                    area_data[i][key] = area_data[i][key]
+                                                .replace(/\s*\([\d\.\,]+\)/g, '');
+                    // convert what's left into a usable number
+                    area_data[i][key] = parseInt(area_data[i][key].replace(/,/g, ''), 10);
+                    // rename the key
+                    newkey = newkeys[key]; // key.replace(/\s*in\skm2\s*\(mi2\)/g, '');
+                    // rename the keys
+                    area_data[i][newkey] = area_data[i][key];
+                    delete area_data[i][key];
+                }
+            });
+            areas[area_data[i].Country] = area_data[i];
+        }
         console.log('areas', areas);
         $areas.resolve(areas);
     });
@@ -216,17 +231,6 @@ $(function(){
             });
 
         population_data = population_data.data;
-
-        /*
-        for (var i = 0, s = population_data.length; i < s; i++) {
-            if (
-                population_data[i].Population !== undefined &&
-                typeof population_data[i].Population === 'string'
-            ) {
-                population_data[i].Population = parseInt(population_data[i].Population.replace(/,/g, ''), 10);
-            }
-        }
-        */
 
         var population = {};
 
@@ -413,7 +417,7 @@ $(function(){
 
 
     // process the shapes and shades data
-    $.when($countries, $happiness, $population, $shades, $max, $info_detail).done(function (countries, happiness, population, shades, max, info_detail) {
+    $.when($countries, $happiness, $population, $areas, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, shades, max, info_detail) {
         function get_happiness (countryname) {
             var score = 'unknown';
             for (var i = 0, s = happiness.length; i < s; i++) {
@@ -442,6 +446,14 @@ $(function(){
                 ) {
                     p = population[feature.properties.name].Population.formatNumber();
                 }
+                // area
+                var a = false;
+                if (
+                    areas[feature.properties.name] !== undefined
+                    && areas[feature.properties.name].Land !== undefined
+                ) {
+                    a = areas[feature.properties.name].Land.formatNumber();
+                }
                 // shading
                 // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
                 if (shades[feature.properties.name] !== undefined) {
@@ -454,7 +466,8 @@ $(function(){
                     info_detail._container.innerHTML = info_detailFn({
                         name: this.feature.properties.name,
                         happiness: h,
-                        population: p
+                        population: p,
+                        area: a
                     });
                     // show the info container
                     L.DomUtil.removeClass(info_detail._container, 'hidden');
