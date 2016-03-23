@@ -173,6 +173,9 @@ $(function(){
             return p.replace(/"/g, '').split(',');
         });
 
+        // TODO:
+        // 1. fix source to match country names
+        // 2. format area as keyed object
 
 
 
