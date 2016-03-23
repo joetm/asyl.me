@@ -57,6 +57,8 @@ templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
 var info_detailFn = doT.template(templates.info_detail);
 
 
+// -------------------------------------------------------------
+
 
 var $happiness = $.Deferred();
 var $shades = $.Deferred();
@@ -68,6 +70,9 @@ var $min = $.Deferred();
 var $max = $.Deferred();
 
 var $info_detail = $.Deferred();
+
+
+// -------------------------------------------------------------
 
 
 $(function(){
@@ -196,53 +201,43 @@ $(function(){
 
         population_data = population_data.data;
 
+        /*
         for (var i = 0, s = population_data.length; i < s; i++) {
+            if (
+                population_data[i].Population !== undefined &&
+                typeof population_data[i].Population === 'string'
+            ) {
+                population_data[i].Population = parseInt(population_data[i].Population.replace(/,/g, ''), 10);
+            }
+        }
+        */
+
+        var population = {};
+
+        for (var i = 0, s = population_data.length; i < s; i++) {
+            // fix the nasty country key
             for(var key in population_data[i]) {
-                if(population_data[i].hasOwnProperty(key)) {
+                if(
+                    population_data[i].hasOwnProperty(key) &&
+                    typeof population_data[i][key] === 'string'
+                ) {
                     population_data[i][key] = population_data[i][key]
                                                 .replace(/\s*\[Note\s\d+\]/g, '')
                                                 .replace(/\s*\*\([a-z,\.\-\s]+\)\*/gi, '')
                                                 .replace(/[\*\"]/g, '');
                     // fix population figure
                     if (key === 'Population') {
-                        population_data[i][key] = parseInt(population_data[i][key].replace(/[",]/g, ''), 10);
+                        population_data[i][key] = parseInt(population_data[i][key].replace(/,/g, ''), 10);
                     }
                 }
             }
+            population[population_data[i]['Country (or dependent territory)']] = population_data[i];
         }
 
-        console.log('population_data', population_data);
+        // console.log('population_data', population_data);
 
-        var population = {};
-
-        //var tmp;
-        //var keys = Object.keys(population_data[0]);
-        //for (var i = 0, s = population_data.length; i < s; i++) {
-        //    if (population_data[i] == undefined) {
-        //        continue;
-        //    }
-        //    tmp = {};
-        //    for (var j = 0, t = keys.length; j < t; j++) {
-        //        if (population_data[i][j] === undefined) {
-        //            continue;
-        //        }
-        //        // rewrite the crappy data from Wikipedia
-        //        population_data[i][j] = population_data[i][j]
-        //                                    .replace(/\s*\[Note\s\d+\]/g, '')
-        //                                    .replace(/\s*\*\([a-z,\.\-\s]+\)\*/gi, '')
-        //                                    .replace(/[\*\"]/g, '');
-                // TODO: fix the population figure
-                //if (keys[j] !== 'Population') {
-                //    // rewrite population figure
-                //    console.log('fixing number', population_data[i][j]);
-                //    //    population_data[i][j] = population_data[i][j].replace(/[",]/g, '');
-                //}
-        //        tmp[keys[j]] = population_data[i][j];
-        //    }
-        //    population[tmp.Country] = tmp;
-        //}
-        population = population_data;
         console.log('population', population);
+
         $population.resolve(population);
     });
 
