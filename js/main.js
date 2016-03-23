@@ -41,7 +41,8 @@ templates.info_detail = '<div class="info">' +
                             '<h2>{{=it.name}}</h2>' +
                             '<div>Happiness:  {{=it.happiness}}</div>' +
                             '<div>Population: {{=it.population}}</div>' +
-                            '<div>Population per km<sup>2</sup>: {{=it.area}}</div>' +
+                            '<div>Area (km<sup>2</sup>): {{=it.area}}</div>' +
+                            '<div>Population per km<sup>2</sup>: {{=it.ppa}}</div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -444,7 +445,7 @@ $(function(){
                     population[feature.properties.name] !== undefined
                     && population[feature.properties.name].Population !== undefined
                 ) {
-                    p = population[feature.properties.name].Population.formatNumber();
+                    p = population[feature.properties.name].Population;
                 }
                 // area
                 var a = false;
@@ -452,7 +453,17 @@ $(function(){
                     areas[feature.properties.name] !== undefined
                     && areas[feature.properties.name].Land !== undefined
                 ) {
-                    a = areas[feature.properties.name].Land.formatNumber();
+                    a = areas[feature.properties.name].Land;
+                }
+                // population per area
+                var ppa = 0;
+                if (
+                    a > 0
+                ) {
+                    if (!p) {
+                        p = 0;
+                    }
+                    ppa = p / a;
                 }
                 // shading
                 // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
@@ -466,8 +477,9 @@ $(function(){
                     info_detail._container.innerHTML = info_detailFn({
                         name: this.feature.properties.name,
                         happiness: h,
-                        population: p,
-                        area: a
+                        population: p.formatNumber(),
+                        area: a.formatNumber(),
+                        ppa: ppa.toFixed(2) // round to two decimals
                     });
                     // show the info container
                     L.DomUtil.removeClass(info_detail._container, 'hidden');
