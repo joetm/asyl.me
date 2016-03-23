@@ -502,6 +502,17 @@ $(function(){
                     ppa = p / a;
                 }
                 // gdp
+                // TODO: fix GDP for Syria
+
+
+
+
+
+
+
+
+
+
                 var g = false;
                 if (
                     gdp[feature.properties.name] !== undefined
