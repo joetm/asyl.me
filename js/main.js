@@ -130,6 +130,10 @@ $(function(){
     // -------------------------------------------------------------
 
 
+    // -------------------------------------------------------------
+    // DATA processing
+    // -------------------------------------------------------------
+
     $.when($country_query).done(function (country_data) {
         if (!country_data) {
             $country_query.reject('Could not load countries');
@@ -275,26 +279,29 @@ $(function(){
         // console.log('happiness', happiness);
         $happiness.resolve(happiness);
 
+    });
+
+
+
+    // -------------------------------------------------------------
+
+    $.when($happiness).done(function (happiness) {
         var tmax = 0,
             tmin;
         for (var i = 0, s = happiness.length; i < s; i++) {
             tmax = Math.max(tmax, happiness[i].Score);
             if (!tmin) {
                 tmin = happiness[i].Score;
-            } else {
-                tmin = Math.min(tmin, happiness[i].Score);
+                continue;
             }
+            tmin = Math.min(tmin, happiness[i].Score);
         }
         console.log('min(Happiness)', tmin);
         console.log('max(Happiness)', tmax);
         // got the min/max -> resolve so that the legend can be drawn
         $min.resolve(tmin);
         $max.resolve(tmax);
-
     });
-
-
-    // -------------------------------------------------------------
 
 
     // create an array of color shadings
