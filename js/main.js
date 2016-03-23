@@ -185,6 +185,9 @@ $(function(){
 
 
 
+
+
+
         var areas = area_data;
         console.log('areas', areas);
         $areas.resolve(areas);
