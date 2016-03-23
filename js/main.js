@@ -177,58 +177,71 @@ $(function(){
             $population.reject('Could not load population data');
             return;
         }
-        population_data = population_data.split("\n");
-        population_data = population_data.map(function (p) {
-            return p.replace(/"/g, '').split(',');
-        });
-        // convert the array into a keyed object
-        var population = {};
-        var tmp;
-        var keys = population_data[0].map(function (key) { return key.replace(/"/g, ''); });
-        // rewrite the country key
-        for (var j = 0, t = keys.length; j < t; j++) {
-            // console.log(keys[j]);
-            if (keys[j] == 'Country (or dependent territory)') {
-                keys[j] = 'Country';
-                break;
+        //population_data = population_data.split("\n");
+        //population_data = population_data.map(function (p) {
+            // split the rows by ',' and remove '"' from each value in the array
+            // return p.split(',');
+            //.map(function (t) {
+            //    return t.replace(/"/g, '');
+            //});
+        //    return p;
+        //});
+
+        population_data = Papa.parse(population_data, {
+                        delimiter: ",",
+                        newline: "",
+                        header: true,
+                        dynamicTyping: true
+            });
+
+        population_data = population_data.data;
+
+        for (var i = 0, s = population_data.length; i < s; i++) {
+            for(var key in population_data[i]) {
+                if(population_data[i].hasOwnProperty(key)) {
+                    population_data[i][key] = population_data[i][key]
+                                                .replace(/\s*\[Note\s\d+\]/g, '')
+                                                .replace(/\s*\*\([a-z,\.\-\s]+\)\*/gi, '')
+                                                .replace(/[\*\"]/g, '');
+                    // fix population figure
+                    if (key === 'Population') {
+                        population_data[i][key] = parseInt(population_data[i][key].replace(/[",]/g, ''), 10);
+                    }
+                }
             }
         }
-        // console.log('keys', keys);
-        // remove header row
-        delete population_data[0];
-        for (var i = 0, s = population_data.length; i < s; i++) {
-            if (population_data[i] == undefined) {
-                continue;
-            }
-            tmp = {};
-            for (var j = 0, t = keys.length; j < t; j++) {
-                if (population_data[i][j] === undefined) {
-                    continue;
-                }
-                // rewrite the crappy data from Wikipedia
-                population_data[i][j] = population_data[i][j]
-                                            .replace(/\s*\[Note\s\d+\]/g, '')
-                                            .replace(/\s*\*\([a-z,\.\-\s]+\)\*/gi, '')
-                                            .replace(/[\*\"]/g, '');
 
+        console.log('population_data', population_data);
+
+        var population = {};
+
+        //var tmp;
+        //var keys = Object.keys(population_data[0]);
+        //for (var i = 0, s = population_data.length; i < s; i++) {
+        //    if (population_data[i] == undefined) {
+        //        continue;
+        //    }
+        //    tmp = {};
+        //    for (var j = 0, t = keys.length; j < t; j++) {
+        //        if (population_data[i][j] === undefined) {
+        //            continue;
+        //        }
+        //        // rewrite the crappy data from Wikipedia
+        //        population_data[i][j] = population_data[i][j]
+        //                                    .replace(/\s*\[Note\s\d+\]/g, '')
+        //                                    .replace(/\s*\*\([a-z,\.\-\s]+\)\*/gi, '')
+        //                                    .replace(/[\*\"]/g, '');
                 // TODO: fix the population figure
-
-
-
-
-
-
-
-
                 //if (keys[j] !== 'Population') {
                 //    // rewrite population figure
                 //    console.log('fixing number', population_data[i][j]);
                 //    //    population_data[i][j] = population_data[i][j].replace(/[",]/g, '');
                 //}
-                tmp[keys[j]] = population_data[i][j];
-            }
-            population[tmp.Country] = tmp;
-        }
+        //        tmp[keys[j]] = population_data[i][j];
+        //    }
+        //    population[tmp.Country] = tmp;
+        //}
+        population = population_data;
         console.log('population', population);
         $population.resolve(population);
     });
