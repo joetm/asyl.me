@@ -69,6 +69,15 @@ Number.prototype.formatNumber = function () {
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
 
+var load_csv = function (url) {
+    return $query = $.ajax({
+        url: url,
+        dataType: "text"
+    })
+        .fail(function (msg) {
+            console.error(msg);
+        });
+};
 
 // -------------------------------------------------------------
 
@@ -116,45 +125,18 @@ $(function(){
     // -------------------------------------------------------------
     // Happiness index
     // https://docs.google.com/spreadsheets/d/1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04/pub?output=csv
-    var $happiness_query = $.ajax({
-        url: 'data/happiness/world-happiness-index.csv',
-        dataType: "text"
-    })
-        .fail(function (msg) {
-            console.error(msg);
-        });
+    var $happiness_query = load_csv("data/happiness/world-happiness-index.csv");
     // Country shapes
-    var $country_query = $.getJSON("data/country/countries.geojson")
-        .fail(function (msg) {
-            console.error(msg);
-        });
+    var $country_query = load_csv("data/country/countries.geojson");
     // World population
     // https://docs.google.com/spreadsheets/d/1-lhti1yTM5CjlMTz3Hc_VqEnVTxbhoIS8WjUetmIWHs/pub?output=csv
-    var $population_query = $.ajax({
-            url: "data/population/population.csv",
-            dataType: "text"
-    })
-        .fail(function (msg) {
-            console.error(msg);
-        });
+    var $population_query = load_csv("data/population/population.csv");
     // Country areas
     // https://docs.google.com/spreadsheets/d/1KFjJ0AlYqeSOoUP5s8NGq4KUmZF65YeZc6m6WojwOHM/pub?output=csv
-    var $area_query = $.ajax({
-            url: "data/area/countries-area.csv",
-            dataType: "text"
-    })
-        .fail(function (msg) {
-            console.error(msg);
-        });
+    var $area_query = load_csv("data/area/countries-area.csv");
     // GDP per capita (PPP) - IMF
     // https://docs.google.com/spreadsheets/d/1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o/pub?output=csv
-    var $gdp_query = $.ajax({
-            url: "data/gdp/gdp.csv",
-            dataType: "text"
-    })
-        .fail(function (msg) {
-            console.error(msg);
-        });
+    var $gdp_query = load_csv("data/gdp/gdp.csv");
     // -------------------------------------------------------------
 
 
@@ -298,7 +280,6 @@ $(function(){
         $population.resolve(population);
     });
 
-
     $.when($happiness_query).done(function (happiness_data) {
 
         if (!happiness_data) {
@@ -345,8 +326,6 @@ $(function(){
         $happiness.resolve(happiness);
 
     });
-
-
 
     // -------------------------------------------------------------
 
@@ -503,6 +482,8 @@ $(function(){
                 }
                 // gdp
                 // TODO: fix GDP for Syria
+
+
 
 
 
