@@ -40,7 +40,7 @@ var remapping = {
 /*************/
 
 var templates = {};
-templates.info_detail = '<div class="info">' +
+templates.info_detail = '<div class="info debug">' +
                             '<h2>{{=it.name}}</h2>' +
                             '<div>Happiness:  <span class="happiness">{{=it.happiness}}</span></div>' +
                             '<div>Population: <span class="population">{{=it.population}}</span></div>' +
@@ -59,7 +59,7 @@ templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                                 '<input type="checkbox" name="bordercrossings" value="1" /> Show border crossings' +
                             '</label>' +
                         '</div>';
-var info_detailFn = doT.template(templates.info_detail);
+var info_detailTpl = doT.template(templates.info_detail);
 
 
 // -------------------------------------------------------------
@@ -388,18 +388,21 @@ $(function(){
 
 
     // ---------------------
-    // info panel at top right
+    // (debug) info panel at bottom right
     // ---------------------
     $.when(templates).done(function (templates) {
-        var info_detail = L.control({position: 'topright'});
+        var info_detail = L.control({position: 'bottomright'});
         info_detail.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info detail');
             // initially hidden
             L.DomUtil.addClass(div, 'hidden');
-            div.innerHTML = info_detailFn({name: 'Country'});
+            L.DomUtil.addClass(div, 'pull-right');
+            L.DomUtil.addClass(div, 'bottomright');
+            div.innerHTML = info_detailTpl({name: 'Country'});
             return div;
         };
         info_detail.addTo(map);
+        $('.info.debug').parent('div').addClass('debug');
         $info_detail.resolve(info_detail);
     });
 
@@ -431,6 +434,8 @@ $(function(){
                     '<div><i style="background:' + getLegendColor(grades[i - diff] + 1) + '"></i> ' +
                     grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] : '+')+'</div>';
             }
+            L.DomUtil.addClass(div, 'pull-right');
+            L.DomUtil.addClass(div, 'bottomright');
             return div;
         };
         legend.addTo(map);
@@ -515,7 +520,7 @@ $(function(){
                 }
                 layer.on("click", function (e) {
                     // console.log(this.feature.properties.name, this.options.fillColor);
-                    info_detail._container.innerHTML = info_detailFn({
+                    info_detail._container.innerHTML = info_detailTpl({
                         name: this.feature.properties.name,
                         happiness: h,
                         population: p.formatNumber(),
