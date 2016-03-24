@@ -22,6 +22,9 @@ var config = {
         weight: 1,
         opacity: 0.9,
         fillOpacity: 0.8
+    },
+    gdp: {
+        green: 25
     }
 };
 
@@ -39,11 +42,11 @@ var remapping = {
 var templates = {};
 templates.info_detail = '<div class="info">' +
                             '<h2>{{=it.name}}</h2>' +
-                            '<div>Happiness:  {{=it.happiness}}</div>' +
-                            '<div>Population: {{=it.population}}</div>' +
-                            '<div>Area (km<sup>2</sup>): {{=it.area}}</div>' +
-                            '<div>Population per km<sup>2</sup>: {{=it.ppa}}</div>' +
-                            '<div>GDP-PPP (Int$): {{=it.gdp}}</div>' +
+                            '<div>Happiness:  <span class="happiness">{{=it.happiness}}</span></div>' +
+                            '<div>Population: <span class="population">{{=it.population}}</span></div>' +
+                            '<div>Area (km<sup>2</sup>): <span class="area">{{=it.area}}</span></div>' +
+                            '<div>Population per km<sup>2</sup>: <span class="ppa">{{=it.ppa}}</span></div>' +
+                            '<div>GDP-PPP (Int$): <span class="gdp">{{=it.gdp}}</span></div>' +
                         '</div>';
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
@@ -153,7 +156,7 @@ $(function(){
             return;
         }
         var countries = country_data.features;
-        console.log('countries', countries);
+        // console.log('countries', countries);
         $countries.resolve(countries);
     });
 
@@ -277,9 +280,7 @@ $(function(){
         }
 
         // console.log('population_data', population_data);
-
         console.log('population', population);
-
         $population.resolve(population);
     });
 
@@ -393,6 +394,7 @@ $(function(){
         var info_detail = L.control({position: 'topright'});
         info_detail.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info detail');
+            // initially hidden
             L.DomUtil.addClass(div, 'hidden');
             div.innerHTML = info_detailFn({name: 'Country'});
             return div;
@@ -521,6 +523,16 @@ $(function(){
                         ppa: ppa.toFixed(2), // round to two decimals
                         gdp: g.formatNumber()
                     });
+                    /*
+                    // console.log(ppa);
+                    if (ppa >= config.gdp.green) {
+                        // console.log('gdp green');
+                        $('.info.detail .gdp').css('color', 'green');
+                    } else {
+                        // console.log('gdp normal');
+                        $('.info.detail .gdp').css('color', 'inherit');
+                    }
+                    */
                     // show the info container
                     L.DomUtil.removeClass(info_detail._container, 'hidden');
                 });
