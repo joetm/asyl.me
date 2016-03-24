@@ -69,10 +69,13 @@ Number.prototype.formatNumber = function () {
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
 
-var load_csv = function (url) {
-    return $query = $.ajax({
+var load_csv = function (url, querytype) {
+    if (querytype === undefined) {
+        querytype = "text";
+    }
+    return $.ajax({
         url: url,
-        dataType: "text"
+        dataType: querytype
     })
         .fail(function (msg) {
             console.error(msg);
@@ -127,7 +130,7 @@ $(function(){
     // https://docs.google.com/spreadsheets/d/1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04/pub?output=csv
     var $happiness_query = load_csv("data/happiness/world-happiness-index.csv");
     // Country shapes
-    var $country_query = load_csv("data/country/countries.geojson");
+    var $country_query = load_csv("data/country/countries.geojson", 'json');
     // World population
     // https://docs.google.com/spreadsheets/d/1-lhti1yTM5CjlMTz3Hc_VqEnVTxbhoIS8WjUetmIWHs/pub?output=csv
     var $population_query = load_csv("data/population/population.csv");
@@ -150,7 +153,7 @@ $(function(){
             return;
         }
         var countries = country_data.features;
-        // console.log('countries', countries);
+        console.log('countries', countries);
         $countries.resolve(countries);
     });
 
