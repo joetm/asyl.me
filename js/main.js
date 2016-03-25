@@ -28,6 +28,16 @@ var config = {
     }
 };
 
+var baseMaps = {
+    // OSM tiles
+    "tiles": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            maxZoom: config.maxZoom,
+            minZoom: config.minZoom,
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    })
+};
+var overlayMaps = {};
+
 // some of the countries do not match
 var remapping = {
     'United States': 'United States of America',
@@ -134,7 +144,9 @@ var $countries = $.Deferred();
 var $population = $.Deferred();
 var $areas = $.Deferred();
 var $gdp = $.Deferred();
+
 var $bordercrossings = $.Deferred();
+var $country_geojson = $.Deferred();
 
 var $min = $.Deferred();
 var $max = $.Deferred();
@@ -150,22 +162,15 @@ $(function(){
     // remove the loader
     $('#loader').addClass('done');
 
-    // OSM tiles
-    var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            maxZoom: config.maxZoom,
-            minZoom: config.minZoom,
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        }),
-        latlng = L.latLng(47.5133586, 10.1074008);
+    var latlng = L.latLng(47.5133586, 10.1074008);
 
     // leaflet map
     var map = L.map('map', {
         center: latlng,
         zoom: config.zoom_level,
         animate: config.animate,
-        layers: [tiles]
+        layers: [ baseMaps.tiles ]
     });
-
     $map.resolve(map);
 
 
@@ -609,7 +614,8 @@ $(function(){
 
             }
         }).addTo(map);
-        country_geojson.bringToBack();
+        $country_geojson.resolve(country_geojson);
+        // country_geojson.bringToBack();
     });
 
     /*
@@ -662,9 +668,19 @@ $(function(){
             onEachFeature: function (feature, layer) {
                 layer.bindPopup(feature.properties.name);
             }
-        }).addTo(map);
+        }); //.addTo(map)
         // bordercrossings.bringToFront();
         $bordercrossings.resolve(bordercrossings);
+    });
+
+    // overlays
+    $.when($bordercrossings, $country_geojson).done(function (bordercrossings, country_geojson) {
+
+        overlayMaps['Happiness'] = country_geojson;
+        overlayMaps['Border Crossings'] = bordercrossings;
+
+        L.control.layers(overlayMaps).addTo(map);
+
     });
 
 });
