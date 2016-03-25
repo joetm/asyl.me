@@ -148,10 +148,10 @@ population",Source
 144,Macedonia,"2,069,172",31/12/2014,0.03%,Official estimate
 145,Latvia,"1,968,600",01/02/2016,0.03%,Monthly official estimate
 146,Lesotho,"1,894,194",2011,0.03%,Official estimate
-147,The Gambia,"1,882,450",15/04/2013,0.03%,Preliminary 2013 census result
+147,Gambia,"1,882,450",15/04/2013,0.03%,Preliminary 2013 census result
 148,Kosovo,"1,836,978",2016,0.03%,Official annual projection
 149,Gabon,"1,802,278",05/10/2013,0.03%,Preliminary 2013 census result
-150,Guinea-Bissau,"1,547,777",01/07/2016,0.02%,Official projection
+150,Guinea Bissau,"1,547,777",01/07/2016,0.02%,Official projection
 151,Bahrain,"1,404,900",01/07/2016,0.02%,Official annual projection
 152,Trinidad and Tobago,"1,349,667",01/07/2015,0.02%,Official estimate
 153,Estonia,"1,311,759",01/01/2016,0.02%,Official estimate
@@ -250,3 +250,4 @@ population",Source
 --,French Southern and Antarctic Lands,140,2013,0.00%,
 --,Pitcairn Islands,56,01/02/2014,0.00%,Official estimate
 --,South Georgia and the South Sandwich Islands,29,2006,0.00%,
+--,Antarctica,4000

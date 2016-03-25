@@ -85,8 +85,46 @@ var load_csv = function (url, querytype) {
         });
 };
 
+var get_happiness = function (countryname, happiness) {
+    var score = 'unknown';
+    for (var i = 0, s = happiness.length; i < s; i++) {
+        if (happiness[i].Country === countryname) {
+            score = happiness[i].Score;
+            break;
+        }
+    }
+    if (!(score >= 0)) {
+        score = 'unknown';
+    }
+    return score;
+};
+
+var get_property = function (countryname, obj, key) {
+    var score = 0;
+
+    // debug to improve data quality
+    if (obj[countryname] === undefined) {
+        console.debug(key+':', countryname + ' not found');
+        return;
+    }
+    // debug to improve data quality
+    if (obj[countryname][key] === undefined) {
+        console.debug(key+':', key + ' not found');
+        return;
+    }
+
+    if (
+        obj[countryname] !== undefined
+        && obj[countryname][key] !== undefined
+    ) {
+        score = obj[countryname][key];
+    }
+    return score;
+};
+
 // -------------------------------------------------------------
 
+var $map = $.Deferred();
 
 var $happiness = $.Deferred();
 var $shades = $.Deferred();
@@ -125,6 +163,7 @@ $(function(){
         layers: [tiles]
     });
 
+    $map.resolve(map);
 
 
     // -------------------------------------------------------------
@@ -334,6 +373,7 @@ $(function(){
 
     // -------------------------------------------------------------
 
+    // calculate min/max happiness
     $.when($happiness).done(function (happiness) {
         var tmax = 0,
             tmin;
@@ -345,8 +385,8 @@ $(function(){
             }
             tmin = Math.min(tmin, happiness[i].Score);
         }
-        console.log('min(Happiness)', tmin);
-        console.log('max(Happiness)', tmax);
+        // console.log('min(Happiness)', tmin);
+        // console.log('max(Happiness)', tmax);
         // got the min/max -> resolve so that the legend can be drawn
         $min.resolve(tmin);
         $max.resolve(tmax);
@@ -363,20 +403,21 @@ $(function(){
         for (var i = 0, s = happiness.length; i < s; i++) {
             // does the country name need to be remapped?
             // console.log(remapping[happiness[i]['Country']]);
-            if (remapping[happiness[i].Country] !== undefined) {
-                happiness[i].Country = remapping[happiness[i].Country];
-                console.log('remapped', happiness[i]);
-            }
+            //if (remapping[happiness[i].Country] !== undefined) {
+            //    happiness[i].Country = remapping[happiness[i].Country];
+            //    // console.log('remapped', happiness[i]);
+            //}
             shades[happiness[i].Country] = 100 - happiness[i].Score / max * 100;
         }
         // console.log('shades', shades);
         $shades.resolve(shades);
     });
 
+    // ---------------------
+    // panels
+    // ---------------------
 
-    // ---------------------
     // options in bottom left
-    // ---------------------
     $.when(templates).done(function (templates) {
         var info_options = L.control({position: 'bottomleft'});
         info_options.onAdd = function (map) {
@@ -387,10 +428,7 @@ $(function(){
         info_options.addTo(map);
     });
 
-
-    // ---------------------
     // (debug) info panel at bottom right
-    // ---------------------
     $.when(templates).done(function (templates) {
         var info_detail = L.control({position: 'bottomright'});
         info_detail.onAdd = function (map) {
@@ -407,10 +445,7 @@ $(function(){
         $info_detail.resolve(info_detail);
     });
 
-    // ---------------------
     // legend (bottom right)
-    // ---------------------
-    // TODO: adjust the colors to match the country shading
     $.when($min, $max).done(function (min, max) {
         function getLegendColor(d){
             return 'hsl(66, 22%, ' + (d * 10) + '%)';
@@ -443,92 +478,104 @@ $(function(){
     });
 
 
+    // ---------------------
+
     // process the shapes and shades data
     $.when($countries, $happiness, $population, $areas, $gdp, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, gdp, shades, max, info_detail) {
-        function get_happiness (countryname) {
-            var score = 'unknown';
-            for (var i = 0, s = happiness.length; i < s; i++) {
-                if (happiness[i].Country === countryname) {
-                    score = happiness[i].Score;
-                    break;
-                }
-            }
-            return score;
-        }
 
         // console.log('countries', countries);
-        L.geoJson(countries, {
+        var geojson = L.geoJson(countries, {
             style: config.defaultStyle,
             onEachFeature: function(feature, layer) {
-                // get the happiness data
-                var h = get_happiness(feature.properties.name);
-                if (!h) {
-                    h = 'unknown';
-                }
-                // population
-                var p = false;
-                if (
-                    population[feature.properties.name] !== undefined
-                    && population[feature.properties.name].Population !== undefined
-                ) {
-                    p = population[feature.properties.name].Population;
-                }
-                // area
-                var a = false;
-                if (
-                    areas[feature.properties.name] !== undefined
-                    && areas[feature.properties.name].Land !== undefined
-                ) {
-                    a = areas[feature.properties.name].Land;
-                }
-                // population per area
-                var ppa = 0;
-                if (
-                    a > 0
-                ) {
-                    if (!p) {
-                        p = 0;
-                    }
-                    ppa = p / a;
-                }
+
+                // happiness
+                feature.properties.happiness = get_happiness(feature.properties.name, happiness);
+
                 // gdp
+                feature.properties.gdp = get_property(feature.properties.name, gdp, 'IntDollar');
                 // TODO: fix GDP for Syria
 
+                // population
+                feature.properties.population = get_property(feature.properties.name, population, 'Population');
 
+                // area
+                feature.properties.area = get_property(feature.properties.name, areas, 'Land');
 
-
-
-
-
-
-
-
-
-
-                var g = false;
+                // population per area
+                feature.properties.ppa = 0;
                 if (
-                    gdp[feature.properties.name] !== undefined
-                    && gdp[feature.properties.name].IntDollar !== undefined
+                    feature.properties.area > 0
                 ) {
-                    g = gdp[feature.properties.name].IntDollar;
+                    if (!feature.properties.population) {
+                        feature.properties.population = 0;
+                    }
+                    feature.properties.ppa = feature.properties.population / feature.properties.area;
                 }
-                // shading
-                // console.log(feature.properties.name, 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)');
+
+
+
+
+                // set coloring / shading
                 if (shades[feature.properties.name] !== undefined) {
                     layer.setStyle({
                         fillColor: 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)'
                     });
                 }
+
+
+
+
+                // console.log('feature', feature);
+                // console.log('layer', layer);
+
                 layer.on("click", function (e) {
                     // console.log(this.feature.properties.name, this.options.fillColor);
                     info_detail._container.innerHTML = info_detailTpl({
                         name: this.feature.properties.name,
-                        happiness: h,
-                        population: p.formatNumber(),
-                        area: a.formatNumber(),
-                        ppa: ppa.toFixed(2), // round to two decimals
-                        gdp: g.formatNumber()
+                        happiness: feature.properties.happiness,
+                        population: feature.properties.population.formatNumber(),
+                        area: feature.properties.area.formatNumber(),
+                        ppa: feature.properties.ppa.toFixed(2), // round to two decimals
+                        gdp: feature.properties.gdp.formatNumber()
                     });
+                    // TODO:
+                    // reset style of all layers to the happiness styling
+
+
+
+
+
+// function to reset layers
+// geojson.eachLayer(function(l){geojson.resetStyle(l);});
+
+
+
+
+
+
+
+
+
+//TODO:
+//fix click on Greece and Greece data
+
+
+
+
+
+
+
+
+
+
+
+
+                    // highlight the selected country
+                    //var l = e.target;
+                    //l.setStyle({
+                    //    fillOpacity: 0.2
+                    //});
+
                     /*
                     // console.log(ppa);
                     if (ppa >= config.gdp.green) {
@@ -542,7 +589,7 @@ $(function(){
                     // show the info container
                     L.DomUtil.removeClass(info_detail._container, 'hidden');
                 });
-                /*
+
                 layer.on("mouseover", function (e) {
                     // console.log(layer.options.style);
                     layer.options.origstyle = layer.options.style;
@@ -552,7 +599,7 @@ $(function(){
                     // console.log('origstyle', layer.options.origstyle);
                     layer.setStyle(layer.options.origstyle);
                 });
-                */
+
             }
         }).addTo(map);
     });
@@ -581,6 +628,8 @@ $(function(){
     */
 
 
+    // ---------------------
+
     // selector change
     $('.map .info.selector select').on('change', function () {
         alert('reloading');
@@ -588,18 +637,4 @@ $(function(){
     });
 
 
-//testing: drawing an arc
-var start = { x: 36.8027059, y: 34.794319 };
-var end = { x: -0.3817789, y: 51.528308 };
-var generator = new arc.GreatCircle(start, end, { name: 'Syria migration 1' });
-var line = generator.Arc(100, { offset: 10 });
-L.geoJson(line.json()).addTo(map);
-
-var start = { x: 36.8027059, y: 34.794319 };
-var end = { x: 5.9677381, y: 51.0782036 };
-var generator = new arc.GreatCircle(start, end, { name: 'Syria migration 1' });
-var line = generator.Arc(100, { offset: 10 });
-L.geoJson(line.json()).addTo(map);
-
-
-}());
+});
