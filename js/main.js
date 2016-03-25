@@ -50,6 +50,7 @@ var remapping = {
 /*************/
 
 var templates = {};
+// debug panel
 templates.info_detail = '<div class="info debug">' +
                             '<h2>{{=it.name}}</h2>' +
                             '<div>Happiness:  <span class="happiness">{{=it.happiness}}</span></div>' +
@@ -58,6 +59,9 @@ templates.info_detail = '<div class="info debug">' +
                             '<div>Population per km<sup>2</sup>: <span class="ppa">{{=it.ppa}}</span></div>' +
                             '<div>GDP-PPP (Int$): <span class="gdp">{{=it.gdp}}</span></div>' +
                         '</div>';
+var info_detailTpl = doT.template(templates.info_detail);
+var info_detail = L.control({position: 'bottomright'});
+/*
 templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                             '<select>' +
                                 '<option value="happiness" selected="selected">World Happiness Index</option>' +
@@ -69,7 +73,13 @@ templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
                                 '<input type="checkbox" name="bordercrossings" value="1" /> Show border crossings' +
                             '</label>' +
                         '</div>';
-var info_detailTpl = doT.template(templates.info_detail);
+*/
+templates.info_panel = '<div class="col-xs-12">' +
+                        '<h2>{{=it.name}}</h2>' +
+                        'Details here' +
+                        '</div>';
+var info_panelTpl = doT.template(templates.info_panel);
+var info_panel = L.control({position: 'topright'});
 
 
 // -------------------------------------------------------------
@@ -144,9 +154,10 @@ var $countries = $.Deferred();
 var $population = $.Deferred();
 var $areas = $.Deferred();
 var $gdp = $.Deferred();
+var $conflicts = $.Deferred();
 
-var $bordercrossings = $.Deferred();
-var $country_geojson = $.Deferred();
+var $bordercrossing_layer = $.Deferred();
+var $happiness_layer = $.Deferred();
 
 var $min = $.Deferred();
 var $max = $.Deferred();
@@ -193,6 +204,11 @@ $(function(){
     // GDP per capita (PPP) - IMF
     // https://docs.google.com/spreadsheets/d/1UIcp17LmWvzU1hZariKyvL6Gs81wWetMXCo99x49g1o/pub?output=csv
     var $gdp_query = load_csv("data/gdp/gdp.csv");
+    // https://en.wikipedia.org/wiki/List_of_ongoing_armed_conflicts
+    // https://docs.google.com/spreadsheets/d/1ZbOJhE7iBnUv1einXe6Ri5MqQKIfgwsrNoJLEMdZXMs/pub?output=csv
+    var $conflicts_query = load_csv("data/war/war.csv");
+
+
     // -------------------------------------------------------------
 
 
@@ -208,6 +224,22 @@ $(function(){
         var countries = country_data.features;
         // console.log('countries', countries);
         $countries.resolve(countries);
+    });
+
+    $.when($conflicts_query).done(function (conflicts_data) {
+        if (!conflicts_data) {
+            $conflicts_query.reject('Could not load war conflicts');
+            return;
+        }
+        var conflicts = Papa.parse(conflicts_data, {
+                        delimiter: ",",
+                        newline: "",
+                        header: true,
+                        dynamicTyping: true
+            });
+        conflicts = conflicts.data;
+        console.log('conflicts', conflicts);
+        $conflicts.resolve(conflicts);
     });
 
     $.when($gdp_query).done(function (gdp_data) {
@@ -428,6 +460,7 @@ $(function(){
     // ---------------------
 
     // options in bottom left
+    /*
     $.when(templates).done(function (templates) {
         var info_options = L.control({position: 'bottomleft'});
         info_options.onAdd = function (map) {
@@ -437,10 +470,22 @@ $(function(){
         };
         info_options.addTo(map);
     });
+    */
+
+    // info panel in top right
+    $.when(templates).done(function (templates) {
+        info_panel.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info panel');
+            div.innerHTML = 'Choose your origin'; // info_panelTpl({name: 'Country'});
+            // initially hidden
+            // L.DomUtil.addClass(div, 'hidden');
+            return div;
+        };
+        info_panel.addTo(map);
+    });
 
     // (debug) info panel at bottom right
     $.when(templates).done(function (templates) {
-        var info_detail = L.control({position: 'bottomright'});
         info_detail.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info detail');
             // initially hidden
@@ -494,7 +539,7 @@ $(function(){
     $.when($countries, $happiness, $population, $areas, $gdp, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, gdp, shades, max, info_detail) {
 
         // console.log('countries', countries);
-        var country_geojson = L.geoJson(countries, {
+        var happiness_layer = L.geoJson(countries, {
             style: config.defaultStyle,
             onEachFeature: function(feature, layer) {
 
@@ -540,6 +585,7 @@ $(function(){
 
                 layer.on("click", function (e) {
                     // console.log(this.feature.properties.name, this.options.fillColor);
+                    // panel with debug info
                     info_detail._container.innerHTML = info_detailTpl({
                         name: this.feature.properties.name,
                         happiness: feature.properties.happiness,
@@ -547,6 +593,10 @@ $(function(){
                         area: feature.properties.area.formatNumber(),
                         ppa: feature.properties.ppa.toFixed(2), // round to two decimals
                         gdp: feature.properties.gdp.formatNumber()
+                    });
+                    // content for top right panel
+                    info_panel._container.innerHTML = info_panelTpl({
+                        name: this.feature.properties.name
                     });
                     // TODO:
                     // reset style of all layers to the happiness styling
@@ -614,8 +664,8 @@ $(function(){
 
             }
         }).addTo(map);
-        $country_geojson.resolve(country_geojson);
-        // country_geojson.bringToBack();
+        $happiness_layer.resolve(happiness_layer);
+        // happiness_layer.bringToBack();
     });
 
     /*
@@ -653,7 +703,7 @@ $(function(){
 
     // let's check the border crossings
     $.when($bordercrossings_query).done(function (bordercrossing_data) {
-        var bordercrossings = L.geoJson(bordercrossing_data, {
+        var bordercrossing_layer = L.geoJson(bordercrossing_data, {
             pointToLayer: function (feature, latlng) {
                 // circles instead of markers
                 feature.properties.radius = 50;
@@ -669,17 +719,18 @@ $(function(){
                 layer.bindPopup(feature.properties.name);
             }
         }); //.addTo(map)
-        // bordercrossings.bringToFront();
-        $bordercrossings.resolve(bordercrossings);
+        // bordercrossing_layer.bringToFront();
+        $bordercrossing_layer.resolve(bordercrossing_layer);
     });
 
     // overlays
-    $.when($bordercrossings, $country_geojson).done(function (bordercrossings, country_geojson) {
+    $.when($bordercrossing_layer, $happiness_layer).done(function (bordercrossing_layer, happiness_layer) {
 
-        overlayMaps['Happiness'] = country_geojson;
-        overlayMaps['Border Crossings'] = bordercrossings;
+        overlayMaps['Happiness Score'] = happiness_layer;
+        overlayMaps['Border Crossings'] = bordercrossing_layer;
 
-        L.control.layers(overlayMaps).addTo(map);
+        var control = L.control.layers(overlayMaps).addTo(map);
+        control.setPosition('bottomleft');
 
     });
 
