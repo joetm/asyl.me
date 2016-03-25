@@ -8,30 +8,22 @@ class BorderCrossingsSpider(scrapy.Spider):
 
     bcs = {}
 
-    # start_urls = ['https://en.wikipedia.org/wiki/Category:International_border_crossings']
-
-    start_urls = ['https://en.wikipedia.org/wiki/Category:Border_crossings_of_Germany']
-
-    #def parse(self, response):
-    #    for href in response.css('#mw-subcategories ul li a::attr(href)'):
-    #        country_url = response.urljoin(href.extract())
-    #        yield scrapy.Request(country_url, callback=self.parse_country)
-
-    # now on country-level
+    start_urls = ['https://en.wikipedia.org/wiki/Category:International_border_crossings']
 
     def parse(self, response):
+        for href in response.css('#mw-subcategories ul li a::attr(href)'):
+            yield scrapy.Request(response.urljoin(href.extract()), callback=self.parse_country)
+
+    # now on country-level
+    # start_urls = ['https://en.wikipedia.org/wiki/Category:Border_crossings_of_Germany']
+
+    def parse_country(self, response):
     	countryname = response.css('#firstHeading::text').extract()[0].replace('Category:Border crossings of ', '')
 	# logging.info("Scraping %s" % countryname)
         for href in response.css('#mw-subcategories ul li a::attr(href)'):
             request = scrapy.Request(response.urljoin(href.extract()), callback=self.parse_countryborder)
             request.meta['country'] = countryname
             yield request
-
-
-    #def parse_country(self, response):
-    #    for href in response.css('#mw-subcategories ul li a::attr(href)'):
-    #        country_border_url = response.urljoin(href.extract())
-    #        yield scrapy.Request(country_border_url, callback=self.parse_countryborder)
 
     # now on country-border-level
 
