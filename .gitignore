@@ -3,9 +3,15 @@ node_modules/**/*
 OLD
 BAK
 
+*.pyc
+
 cmd
 
 data/links
 data/png
 data/src
-data/acquire_data.py
+data/BAK
+
+scrape/js
+scrape/scrapy-test
+scrape/Category-International\ border\ crossings\ -\ Wikipedia,\ the\ free\ encyclopedia
