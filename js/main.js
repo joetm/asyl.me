@@ -489,7 +489,7 @@ $(function(){
     $.when($countries, $happiness, $population, $areas, $gdp, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, gdp, shades, max, info_detail) {
 
         // console.log('countries', countries);
-        var geojson = L.geoJson(countries, {
+        var country_geojson = L.geoJson(countries, {
             style: config.defaultStyle,
             onEachFeature: function(feature, layer) {
 
@@ -609,6 +609,7 @@ $(function(){
 
             }
         }).addTo(map);
+        country_geojson.bringToBack();
     });
 
     /*
@@ -649,23 +650,20 @@ $(function(){
         var bordercrossings = L.geoJson(bordercrossing_data, {
             pointToLayer: function (feature, latlng) {
                 // circles instead of markers
-                feature.properties.radius = 10;
-                return L.circle(latlng, 10);
-                /*
-                return L.circleMarker{latlng, {
+                feature.properties.radius = 50;
+                return circle = L.circle(latlng, feature.properties.radius, {
                     radius: 10,
                     //stroke: true,
                     //weight: 2,
+                    color:'#ff0000',
                     fillColor:'#ef8080'
                 });
-                */
             },
             onEachFeature: function (feature, layer) {
                 layer.bindPopup(feature.properties.name);
-                //layer.on("click", function (e) {
-                //});
             }
         }).addTo(map);
+        // bordercrossings.bringToFront();
         $bordercrossings.resolve(bordercrossings);
     });
 
