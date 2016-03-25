@@ -1,6 +1,10 @@
 ASYL.ME
 ========
 
+Installation
+------------
+
+pip install ./scrape/requirements.txt
 
 Scraping
 --------

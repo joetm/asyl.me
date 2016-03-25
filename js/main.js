@@ -122,7 +122,9 @@ var get_property = function (countryname, obj, key) {
     return score;
 };
 
+
 // -------------------------------------------------------------
+
 
 var $map = $.Deferred();
 
@@ -132,6 +134,7 @@ var $countries = $.Deferred();
 var $population = $.Deferred();
 var $areas = $.Deferred();
 var $gdp = $.Deferred();
+var $bordercrossings = $.Deferred();
 
 var $min = $.Deferred();
 var $max = $.Deferred();
@@ -174,6 +177,8 @@ $(function(){
     var $happiness_query = load_csv("data/happiness/world-happiness-index.csv");
     // Country shapes
     var $country_query = load_csv("data/country/countries.geojson", 'json');
+    // Border crossings
+    var $bordercrossings_query = load_csv("data/bordercrossings/bordercrossings.geojson", 'json');
     // World population
     // https://docs.google.com/spreadsheets/d/1-lhti1yTM5CjlMTz3Hc_VqEnVTxbhoIS8WjUetmIWHs/pub?output=csv
     var $population_query = load_csv("data/population/population.csv");
@@ -590,6 +595,7 @@ $(function(){
                     L.DomUtil.removeClass(info_detail._container, 'hidden');
                 });
 
+                /*
                 layer.on("mouseover", function (e) {
                     // console.log(layer.options.style);
                     layer.options.origstyle = layer.options.style;
@@ -599,6 +605,7 @@ $(function(){
                     // console.log('origstyle', layer.options.origstyle);
                     layer.setStyle(layer.options.origstyle);
                 });
+                */
 
             }
         }).addTo(map);
@@ -636,5 +643,30 @@ $(function(){
         console.log('reloading');
     });
 
+
+    // let's check the border crossings
+    $.when($bordercrossings_query).done(function (bordercrossing_data) {
+        var bordercrossings = L.geoJson(bordercrossing_data, {
+            pointToLayer: function (feature, latlng) {
+                // circles instead of markers
+                feature.properties.radius = 10;
+                return L.circle(latlng, 10);
+                /*
+                return L.circleMarker{latlng, {
+                    radius: 10,
+                    //stroke: true,
+                    //weight: 2,
+                    fillColor:'#ef8080'
+                });
+                */
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.name);
+                //layer.on("click", function (e) {
+                //});
+            }
+        }).addTo(map);
+        $bordercrossings.resolve(bordercrossings);
+    });
 
 });
