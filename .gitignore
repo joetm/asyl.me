@@ -7,7 +7,7 @@ BAK
 
 cmd
 
-vendor
+vendor/**/*
 
 data/links
 data/png
