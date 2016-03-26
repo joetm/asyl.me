@@ -5,7 +5,6 @@
 var templates = {};
 // debug panel
 templates.info_detail = '<div class="info debug">' +
-                            '<h2>{{=it.name}}</h2>' +
                             '<div>Happiness:  <span class="happiness">{{=it.happiness}}</span></div>' +
                             '<div>Population: <span class="population">{{=it.population}}</span></div>' +
                             '<div>Area (km<sup>2</sup>): <span class="area">{{=it.area}}</span></div>' +

@@ -7,6 +7,10 @@ Number.prototype.formatNumber = function () {
     var num = this;
     return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 };
+String.prototype.formatNumber = function () {
+    var numstring = this;
+    return numstring.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+};
 
 var load_csv = function (url, querytype) {
     if (querytype === undefined) {
@@ -36,17 +40,17 @@ var get_happiness = function (countryname, happiness) {
 };
 
 var get_property = function (countryname, obj, key) {
-    var score = 0;
+    var score = 'unknown';
 
     // debug to improve data quality
     if (obj[countryname] === undefined) {
         console.debug(key+':', countryname + ' not found');
-        return;
+        return score;
     }
     // debug to improve data quality
     if (obj[countryname][key] === undefined) {
         console.debug(key+':', key + ' not found');
-        return;
+        return score;
     }
 
     if (
