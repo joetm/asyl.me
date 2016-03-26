@@ -25,6 +25,7 @@ requirejs.config({
         'map': './js/map',
         'panels': './js/panels',
         'main': './js/main',
+        'happiness': './js/happiness',
         'arcs': './js/arcs'
         // ------------------------------------
     },

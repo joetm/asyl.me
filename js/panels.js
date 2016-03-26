@@ -10,19 +10,6 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers'], function (tpl, L, map, co
     // panels
     // ---------------------
 
-    // options in bottom left
-    /*
-    $.when(templates).done(function (templates) {
-        var info_options = L.control({position: 'bottomleft'});
-        info_options.onAdd = function (map) {
-            var div = L.DomUtil.create('div', 'info selector');
-            div.innerHTML = templates.info_options;
-            return div;
-        };
-        info_options.addTo(map);
-    });
-    */
-
     // info panel in top right
     tpl.info_panel.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'info panel');
@@ -45,7 +32,6 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers'], function (tpl, L, map, co
     };
     tpl.info_detail.addTo(map);
     $('.info.debug').parent('div').addClass('debug');
-    $info_detail.resolve(tpl.info_detail);
 
     // legend (bottom right)
     $.when($min, $max).done(function (min, max) {

@@ -12,9 +12,14 @@ define([
     'domReady',
     'tpl',
     'helpers',
-    'panels'
-], function (config, data, map, domReady, tpl, helpers, panels) {
+    'panels',
+    'happiness'
+], function (config, data, map, domReady, tpl, helpers, panels, happiness) {
     'use strict';
+
+    var $happiness_layer = $.Deferred();
+    var $bordercrossing_layer = $.Deferred();
+
 
     domReady(function (doc) {
 
@@ -23,12 +28,9 @@ define([
 
         // -------------------------------------------------------------
 
+        // process the shapes and shades data
+        $.when($countries, happiness, $population, $areas, $gdp, $centroids, $max).done(function (countries, happiness, population, areas, gdp, centroids, max) {
 
-        // create an array of color shadings
-        $.when($countries, $happiness, $max).done(function (countries, happiness, max) {
-            // console.log('building shading');
-            // console.log(countries);
-            // console.log(happiness);
             // create a shading range
             var shades = {};
             for (var i = 0, s = happiness.length; i < s; i++) {
@@ -41,13 +43,6 @@ define([
                 shades[happiness[i].Country] = 100 - happiness[i].Score / max * 100;
             }
             // console.log('shades', shades);
-            $shades.resolve(shades);
-        });
-
-        // ---------------------
-
-        // process the shapes and shades data
-        $.when($countries, $happiness, $population, $areas, $gdp, $centroids, $shades, $max, $info_detail).done(function (countries, happiness, population, areas, gdp, centroids, shades, max, info_detail) {
 
             // console.log('countries', countries);
             var happiness_layer = L.geoJson(countries, {
@@ -101,7 +96,7 @@ define([
                     layer.on("click", function (e) {
                         // console.log(this.feature.properties.name, this.options.fillColor);
                         // panel with debug info
-                        info_detail._container.innerHTML = info_detailTpl({
+                        tpl.info_detail._container.innerHTML = tpl.info_detailTpl({
                             name: this.feature.properties.name,
                             happiness: feature.properties.happiness,
                             population: feature.properties.population.formatNumber(),
@@ -110,7 +105,7 @@ define([
                             gdp: feature.properties.gdp.formatNumber()
                         });
                         // content for top right panel
-                        info_panel._container.innerHTML = info_panelTpl({
+                        tpl.info_panel._container.innerHTML = tpl.info_panelTpl({
                             name: this.feature.properties.name
                         });
                         // TODO:
@@ -162,7 +157,7 @@ define([
                         }
                         */
                         // show the info container
-                        L.DomUtil.removeClass(info_detail._container, 'hidden');
+                        L.DomUtil.removeClass(tpl.info_detail._container, 'hidden');
                     });
 
                     /*
@@ -237,6 +232,8 @@ define([
             // bordercrossing_layer.bringToFront();
             $bordercrossing_layer.resolve(bordercrossing_layer);
         });
+
+
 
         // overlays
         $.when($bordercrossing_layer, $happiness_layer).done(function (bordercrossing_layer, happiness_layer) {

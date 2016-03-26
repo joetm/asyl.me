@@ -5,21 +5,12 @@
 
 
 // fix this
-var $map = $.Deferred();
-var $happiness = $.Deferred();
-var $shades = $.Deferred();
 var $countries = $.Deferred();
 var $population = $.Deferred();
 var $areas = $.Deferred();
 var $gdp = $.Deferred();
 var $conflicts = $.Deferred();
 var $centroids = $.Deferred();
-var $bordercrossing_layer = $.Deferred();
-var $happiness_layer = $.Deferred();
-var $min = $.Deferred();
-var $max = $.Deferred();
-var $info_detail = $.Deferred();
-
 
 
 define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, helpers, Papa) {
@@ -30,9 +21,6 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
         // -------------------------------------------------------------
         // AJAX queries
         // -------------------------------------------------------------
-        // Happiness index
-        // https://docs.google.com/spreadsheets/d/1L3yKGh7qN1OLrUeG7AAU5YSVLZQ2a9oE7oU13phlR04/pub?output=csv
-        var $happiness_query = helpers.load_csv("data/happiness/world-happiness-index.csv");
         // Country shapes
         var $country_query = helpers.load_csv("data/country/countries.geojson", 'json');
         // Border crossings
@@ -230,72 +218,6 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
             console.log('population', population);
             $population.resolve(population);
         });
-
-        $.when($happiness_query).done(function (happiness_data) {
-
-            if (!happiness_data) {
-                $happiness_data.reject('Could not load happiness data');
-                return;
-            }
-
-            var parsed_happiness = [],
-                tmp;
-
-            // split into rows
-            happiness_data = happiness_data.split("\n");
-            // console.log('happiness_data', happiness_data);
-
-            // get the keys
-            var keys = happiness_data[0].split(",").map(function (key) { return key.replace(/"/g, ''); });
-            // remove the header row
-            delete happiness_data[0];
-            // console.log(keys);
-
-            // loop through the rows
-            for (var i = 0, s = happiness_data.length; i < s; i++) {
-                if (happiness_data[i] === undefined) continue;
-                happiness_data[i] = happiness_data[i].split(',');
-                // console.log(happiness_data[i][2]);
-                // loop through keys
-                tmp = {};
-                for (var j = 0, t = keys.length; j < t; j++) {
-                    if (happiness_data[i][j] === undefined) {
-                        continue;
-                    }
-                    tmp[keys[j]] = happiness_data[i][j];
-                }
-                parsed_happiness.push(tmp);
-            }
-
-            //convert some of the strings to numbers
-            var happiness = parsed_happiness.map(function (obj) {
-                obj.Rank  = parseInt(obj.Rank, 10);
-                obj.Score = parseFloat(obj.Score);
-                return obj;
-            });
-            // console.log('happiness', happiness);
-            $happiness.resolve(happiness);
-
-
-            // calculate min/max happiness
-            var tmax = 0,
-                tmin;
-            for (var i = 0, s = happiness.length; i < s; i++) {
-                tmax = Math.max(tmax, happiness[i].Score);
-                if (!tmin) {
-                    tmin = happiness[i].Score;
-                    continue;
-                }
-                tmin = Math.min(tmin, happiness[i].Score);
-            }
-            // console.log('min(Happiness)', tmin);
-            // console.log('max(Happiness)', tmax);
-            // got the min/max -> resolve so that the legend can be drawn
-            $min.resolve(tmin);
-            $max.resolve(tmax);
-
-        });
-
 
     }); // domReady
 
