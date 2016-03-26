@@ -13,7 +13,8 @@ define([
     'tpl',
     'helpers',
     'panels',
-    'happiness'
+    'happiness',
+    'migration'
 ], function (config, data, map, domReady, tpl, helpers, panels, happiness) {
     'use strict';
 

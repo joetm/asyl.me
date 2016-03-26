@@ -1,0 +1,42 @@
+{
+  "name": "asyl.me",
+  "description": "",
+  "main": "index.html",
+  "authors": [
+    "JO"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "asylum",
+    "asyle",
+    "asyl"
+  ],
+  "homepage": "https://github.com/joetm/asyl.me",
+  "moduleType": [
+    "amd",
+    "globals"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "vendor/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.6",
+    "jquery": "~2.2.2",
+    "leaflet": "~0.7.7",
+    "papaparse": "~4.1.2",
+    "requirejs": "~2.2.0",
+    "text": "requirejs-text#~2.0.14",
+    "domReady": "requirejs-domReady#~2.0.1",
+    "tabletop": "~1.4.3",
+    "doT": "~1.0.1"
+  },
+  "devDependencies": {
+    "qunit": "~1.23.0"
+  }
+}

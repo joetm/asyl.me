@@ -8,13 +8,13 @@ requirejs.config({
     // paths for libraries
     paths: {
         // -vendor libraries-------------------
-        'jquery': './vendor/jquery/jquery.min',
-        'domReady': './vendor/requirejs/domReady',
-        'text': './vendor/requirejs/text',
-        'leaflet': './vendor/leaflet/leaflet',
+        'jquery': './vendor/jquery/dist/jquery.min',
+        'domReady': './vendor/domReady/domReady',
+        'text': './vendor/text/text',
+        'leaflet': './vendor/leaflet/dist/leaflet',
         'mapbox-arc': './vendor/mapbox/arc',
         'papaparse': 'vendor/papaparse/papaparse.min',
-        'bootstrap': 'vendor/bootstrap/js/bootstrap.min',
+        'bootstrap': 'vendor/bootstrap/dist/js/bootstrap.min',
         'doT': 'vendor/doT/doT.min',
         // ------------------------------------
         // application modules
@@ -26,7 +26,8 @@ requirejs.config({
         'panels': './js/panels',
         'main': './js/main',
         'happiness': './js/happiness',
-        'arcs': './js/arcs'
+        'mapbox-arc': '.js/mapbox-arc'
+        'migration': './js/migration',
         // ------------------------------------
     },
     // shim config to load modules in the right order
