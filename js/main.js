@@ -14,12 +14,16 @@ define([
     'helpers',
     'panels',
     'happiness',
-    'migration'
-], function (config, data, map, domReady, tpl, helpers, panels, happiness) {
+    'minmax',
+    'layerscontrol'
+], function (config, data, map, domReady, tpl, helpers, panels, $happiness, $minmax, control) {
     'use strict';
 
+    // TODO:
+    // fix this
     var $happiness_layer = $.Deferred();
     var $bordercrossing_layer = $.Deferred();
+
 
 
     domReady(function (doc) {
@@ -29,8 +33,27 @@ define([
 
         // -------------------------------------------------------------
 
+        // TODO
+        // the data should not be pulled into the app here
+        // each module should add its data
+
+
+
+
+
+
         // process the shapes and shades data
-        $.when($countries, happiness, $population, $areas, $gdp, $centroids, $max).done(function (countries, happiness, population, areas, gdp, centroids, max) {
+        $.when(
+            $happiness,
+            $minmax,
+            data.$countries,
+            data.$population,
+            data.$areas,
+            data.$gdp,
+            data.$centroids
+        ).done(function (happiness, minmax, countries, population, areas, gdp, centroids) {
+
+            console.log('main:happiness', happiness);
 
             // create a shading range
             var shades = {};
@@ -41,7 +64,7 @@ define([
                 //    happiness[i].Country = remapping[happiness[i].Country];
                 //    // console.log('remapped', happiness[i]);
                 //}
-                shades[happiness[i].Country] = 100 - happiness[i].Score / max * 100;
+                shades[happiness[i].Country] = 100 - happiness[i].Score / minmax.max * 100;
             }
             // console.log('shades', shades);
 
@@ -84,10 +107,9 @@ define([
                     layer.setStyle(config.defaultStyle);
                     if (shades[feature.properties.name] !== undefined) {
                         layer.setStyle({
-                            fillColor: 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)'
+                            fillColor: 'hsl(66, 22%, ' + (minmax.max * 10 - shades[feature.properties.name]) + '%)'
                         });
                     }
-
 
 
 
@@ -116,8 +138,10 @@ define([
 
 
 
-    // function to reset layers
-    happiness_layer.eachLayer(function(l){happiness_layer.resetStyle(l);});
+
+
+                        // function to reset layers
+                        happiness_layer.eachLayer(function(l){happiness_layer.resetStyle(l);});
 
 
 
@@ -127,8 +151,8 @@ define([
 
 
 
-    //TODO:
-    //fix click on Greece and Greece data
+                        //TODO:
+                        //fix click on Greece and Greece data
 
 
 
@@ -174,9 +198,11 @@ define([
                     */
 
                 }
-            }).addTo(map);
-            $happiness_layer.resolve(happiness_layer);
-            // happiness_layer.bringToBack();
+            }); //.addTo(map);
+
+            // add overlay layer to config
+            config.overlayMaps['Happiness Score'] = happiness_layer;
+
         });
 
         /*
@@ -204,48 +230,6 @@ define([
 
 
         // ---------------------
-
-        // selector change
-        $('.map .info.selector select').on('change', function () {
-            alert('reloading');
-            console.log('reloading');
-        });
-
-
-        // let's check the border crossings
-        $.when($bordercrossings_query).done(function (bordercrossing_data) {
-            var bordercrossing_layer = L.geoJson(bordercrossing_data, {
-                pointToLayer: function (feature, latlng) {
-                    // circles instead of markers
-                    feature.properties.radius = 50;
-                    return circle = L.circle(latlng, feature.properties.radius, {
-                        radius: 10,
-                        //stroke: true,
-                        //weight: 2,
-                        color:'#ff0000',
-                        fillColor:'#ef8080'
-                    });
-                },
-                onEachFeature: function (feature, layer) {
-                    layer.bindPopup(feature.properties.name);
-                }
-            }); //.addTo(map)
-            // bordercrossing_layer.bringToFront();
-            $bordercrossing_layer.resolve(bordercrossing_layer);
-        });
-
-
-
-        // overlays
-        $.when($bordercrossing_layer, $happiness_layer).done(function (bordercrossing_layer, happiness_layer) {
-
-            config.overlayMaps['Happiness Score'] = happiness_layer;
-            config.overlayMaps['Border Crossings'] = bordercrossing_layer;
-
-            var control = L.control.layers(config.overlayMaps).addTo(map);
-            control.setPosition('bottomleft');
-
-        });
 
     });// domReady
 

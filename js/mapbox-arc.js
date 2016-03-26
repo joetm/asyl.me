@@ -1,5 +1,6 @@
 /**
  * Mapbox Arcs
+ * see https://www.mapbox.com/mapbox.js/example/v1.0.0/arcjs/
  * @module
  */
 

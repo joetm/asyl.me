@@ -16,18 +16,21 @@ requirejs.config({
         'papaparse': 'vendor/papaparse/papaparse.min',
         'bootstrap': 'vendor/bootstrap/dist/js/bootstrap.min',
         'doT': 'vendor/doT/doT.min',
-        // ------------------------------------
-        // application modules
+        // -application modules----------------
         'config': './js/config',
         'tpl': './js/tpl',
         'helpers': './js/helpers',
         'data': './js/data',
         'map': './js/map',
         'panels': './js/panels',
+        'minmax': './js/minmax',
+        'mapbox-arc': './js/mapbox-arc',
         'main': './js/main',
-        'happiness': './js/happiness',
-        'mapbox-arc': '.js/mapbox-arc'
-        'migration': './js/migration',
+        // -layers ----------------------------
+        'happiness': './js/layers/happiness',
+        'bordercrossings': './js/layers/bordercrossings',
+        'migration': './js/layers/migration',
+        'layerscontrol': './js/layerscontrol'
         // ------------------------------------
     },
     // shim config to load modules in the right order

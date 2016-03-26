@@ -4,27 +4,25 @@
  */
 
 
-// fix this
-var $countries = $.Deferred();
-var $population = $.Deferred();
-var $areas = $.Deferred();
-var $gdp = $.Deferred();
-var $conflicts = $.Deferred();
-var $centroids = $.Deferred();
-
-
 define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, helpers, Papa) {
     'use strict';
 
-    domReady(function (doc) {
+    return domReady(function (doc) {
+
+        var data = {};
+
+        data.$countries = $.Deferred();
+        data.$population = $.Deferred();
+        data.$areas = $.Deferred();
+        data.$gdp = $.Deferred();
+        data.$conflicts = $.Deferred();
+        data.$centroids = $.Deferred();
 
         // -------------------------------------------------------------
         // AJAX queries
         // -------------------------------------------------------------
         // Country shapes
         var $country_query = helpers.load_csv("data/country/countries.geojson", 'json');
-        // Border crossings
-        var $bordercrossings_query = helpers.load_csv("data/bordercrossings/bordercrossings.geojson", 'json');
         // World population
         // https://docs.google.com/spreadsheets/d/1-lhti1yTM5CjlMTz3Hc_VqEnVTxbhoIS8WjUetmIWHs/pub?output=csv
         var $population_query = helpers.load_csv("data/population/population.csv");
@@ -40,6 +38,9 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
         // http://gothos.info/resources/
         var $centroid_query = helpers.load_csv("data/country/country_centroids_all.csv");
 
+// TODO: world's most liveable cities
+// https://docs.google.com/spreadsheets/d/1B89nMJ1kgpQXh9tiyGh9GNNEUQyRlCx0DlzltfQbxVM/pub?output=csv
+
 
         // -------------------------------------------------------------
         // DATA processing
@@ -52,7 +53,7 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
             }
             var countries = country_data.features;
             // console.log('countries', countries);
-            $countries.resolve(countries);
+            data.$countries.resolve(countries);
         });
 
         $.when($centroid_query).done(function (centroid_data) {
@@ -77,7 +78,7 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
                 centroids[item.SHORT_NAME] = item;
             });
             console.log('centroids', centroids);
-            $centroids.resolve(centroids);
+            data.$centroids.resolve(centroids);
         });
 
         $.when($conflicts_query).done(function (conflicts_data) {
@@ -93,7 +94,7 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
                 });
             conflicts = conflicts.data;
             console.log('conflicts', conflicts);
-            $conflicts.resolve(conflicts);
+            data.$conflicts.resolve(conflicts);
         });
 
         $.when($gdp_query).done(function (gdp_data) {
@@ -118,7 +119,7 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
                 gdp[item.Country] = item;
             });
             console.log('gdp', gdp);
-            $gdp.resolve(gdp);
+            data.$gdp.resolve(gdp);
         });
 
         $.when($area_query).done(function (area_data) {
@@ -165,7 +166,7 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
                 areas[area_data[i].Country] = area_data[i];
             }
             console.log('areas', areas);
-            $areas.resolve(areas);
+            data.$areas.resolve(areas);
         });
 
         $.when($population_query).done(function (population_data) {
@@ -216,8 +217,10 @@ define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, he
 
             // console.log('population_data', population_data);
             console.log('population', population);
-            $population.resolve(population);
+            data.$population.resolve(population);
         });
+
+        return data;
 
     }); // domReady
 

@@ -3,7 +3,7 @@
  * @module
  */
 
-define(['tpl', 'leaflet', 'map', 'config', 'helpers'], function (tpl, L, map, config, helpers) {
+define(['tpl', 'leaflet', 'map', 'config', 'helpers', 'happiness', 'minmax'], function (tpl, L, map, config, helpers, happiness, $minmax) {
     'use strict';
 
     // ---------------------
@@ -33,14 +33,17 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers'], function (tpl, L, map, co
     tpl.info_detail.addTo(map);
     $('.info.debug').parent('div').addClass('debug');
 
-    // legend (bottom right)
-    $.when($min, $max).done(function (min, max) {
+
+    $.when($minmax).done(function (minmax) {
+        // legend (bottom right)
         var legend = L.control({position: 'bottomright'});
+        //legend.min = minmax.min;
+        //legend.max = minmax.max;
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info legend'),
                 // generate integer range
                 // see http://stackoverflow.com/a/10050831/426266
-                grades = Array.apply(null, Array(parseInt(max + 1, 10))).map(function (_, i) {return i;}),
+                grades = Array.apply(null, Array(parseInt(minmax.max + 1, 10))).map(function (_, i) {return i;}),
                 labels = [];
             // console.log(grades);
             // header?
@@ -49,7 +52,7 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers'], function (tpl, L, map, co
             div.innerHTML +=
                 '<div><i style="background:'+config.defaultStyle.fillColor+'"></i> ?' + '</div>';
             // loop through shades intervals and generate a label with a colored square for each interval
-            var diff = parseInt(min, 10) + 1;
+            var diff = parseInt(minmax.min, 10) + 1;
             for (var i = diff; i < grades.length; i++) {
                 div.innerHTML +=
                     '<div><i style="background:' + helpers.getLegendColor(grades[i - diff] + 1) + '"></i> ' +
