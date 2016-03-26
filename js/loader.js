@@ -23,6 +23,7 @@ requirejs.config({
         'helpers': './js/helpers',
         'data': './js/data',
         'map': './js/map',
+        'panels': './js/panels',
         'main': './js/main',
         'arcs': './js/arcs'
         // ------------------------------------
