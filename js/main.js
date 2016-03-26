@@ -1,87 +1,3 @@
-/**********/
-/* CONFIG */
-/**********/
-
-var config = {
-    maxZoom: 17,
-    minZoom: 2,
-    zoom_level: 3,
-    animate: true,
-    highlightStyle: {
-        radius: 2,
-        fillColor: "#FFFFFF",
-        color: "#FBF0FD",
-        weight: 1,
-        opacity: 0.9,
-        fillOpacity: 0
-    },
-    defaultStyle: {
-        radius: 2,
-        fillColor: "#888888",
-        color: "#FBF0FD",
-        weight: 1,
-        opacity: 0.9,
-        fillOpacity: 0.8
-    },
-    gdp: {
-        green: 25
-    }
-};
-
-var baseMaps = {
-    // OSM tiles
-    "tiles": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            maxZoom: config.maxZoom,
-            minZoom: config.minZoom,
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    })
-};
-var overlayMaps = {};
-
-// some of the countries do not match
-var remapping = {
-    'United States': 'United States of America',
-    'Tanzania': 'United Republic of Tanzania',
-    'Serbia': 'Republic of Serbia'
-};
-
-/*************/
-/* TEMPLATES */
-/*************/
-
-var templates = {};
-// debug panel
-templates.info_detail = '<div class="info debug">' +
-                            '<h2>{{=it.name}}</h2>' +
-                            '<div>Happiness:  <span class="happiness">{{=it.happiness}}</span></div>' +
-                            '<div>Population: <span class="population">{{=it.population}}</span></div>' +
-                            '<div>Area (km<sup>2</sup>): <span class="area">{{=it.area}}</span></div>' +
-                            '<div>Population per km<sup>2</sup>: <span class="ppa">{{=it.ppa}}</span></div>' +
-                            '<div>GDP-PPP (Int$): <span class="gdp">{{=it.gdp}}</span></div>' +
-                        '</div>';
-var info_detailTpl = doT.template(templates.info_detail);
-var info_detail = L.control({position: 'bottomright'});
-/*
-templates.info_options = '<div class="col-1 col-xs-12 col-sm-6">' +
-                            '<select>' +
-                                '<option value="happiness" selected="selected">World Happiness Index</option>' +
-                                '<option value="gdp">GDP per capita</option>' +
-                            '</select>' +
-                        '</div>' +
-                        '<div class="col-2 col-xs-12 col-sm-6">' +
-                            '<label>' +
-                                '<input type="checkbox" name="bordercrossings" value="1" /> Show border crossings' +
-                            '</label>' +
-                        '</div>';
-*/
-templates.info_panel = '<div class="col-xs-12">' +
-                        '<h2>{{=it.name}}</h2>' +
-                        'Details here' +
-                        '</div>';
-var info_panelTpl = doT.template(templates.info_panel);
-var info_panel = L.control({position: 'topright'});
-
-
 // -------------------------------------------------------------
 // Helpers
 // -------------------------------------------------------------
@@ -173,11 +89,9 @@ $(function(){
     // remove the loader
     $('#loader').addClass('done');
 
-    var latlng = L.latLng(47.5133586, 10.1074008);
-
     // leaflet map
     var map = L.map('map', {
-        center: latlng,
+        center: L.latLng(47.5133586, 10.1074008),
         zoom: config.zoom_level,
         animate: config.animate,
         layers: [ baseMaps.tiles ]
@@ -411,12 +325,8 @@ $(function(){
         // console.log('happiness', happiness);
         $happiness.resolve(happiness);
 
-    });
 
-    // -------------------------------------------------------------
-
-    // calculate min/max happiness
-    $.when($happiness).done(function (happiness) {
+        // calculate min/max happiness
         var tmax = 0,
             tmin;
         for (var i = 0, s = happiness.length; i < s; i++) {
@@ -432,7 +342,11 @@ $(function(){
         // got the min/max -> resolve so that the legend can be drawn
         $min.resolve(tmin);
         $max.resolve(tmax);
+
     });
+
+
+    // -------------------------------------------------------------
 
 
     // create an array of color shadings
@@ -540,7 +454,7 @@ $(function(){
 
         // console.log('countries', countries);
         var happiness_layer = L.geoJson(countries, {
-            style: config.defaultStyle,
+            // style: config.defaultStyle,
             onEachFeature: function(feature, layer) {
 
                 // happiness
@@ -571,6 +485,7 @@ $(function(){
 
 
                 // set coloring / shading
+                layer.setStyle(config.defaultStyle);
                 if (shades[feature.properties.name] !== undefined) {
                     layer.setStyle({
                         fillColor: 'hsl(66, 22%, ' + (max*10 - shades[feature.properties.name]) + '%)'
@@ -606,7 +521,7 @@ $(function(){
 
 
 // function to reset layers
-// geojson.eachLayer(function(l){geojson.resetStyle(l);});
+happiness_layer.eachLayer(function(l){happiness_layer.resetStyle(l);});
 
 
 
@@ -631,10 +546,10 @@ $(function(){
 
 
                     // highlight the selected country
-                    //var l = e.target;
-                    //l.setStyle({
-                    //    fillOpacity: 0.2
-                    //});
+                    var l = e.target;
+                    l.setStyle({
+                        fillOpacity: 0.2
+                    });
 
                     /*
                     // console.log(ppa);
