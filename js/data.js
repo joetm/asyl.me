@@ -3,8 +3,9 @@
  * @module
  */
 
-var $map = $.Deferred();
 
+// fix this
+var $map = $.Deferred();
 var $happiness = $.Deferred();
 var $shades = $.Deferred();
 var $countries = $.Deferred();
@@ -13,13 +14,10 @@ var $areas = $.Deferred();
 var $gdp = $.Deferred();
 var $conflicts = $.Deferred();
 var $centroids = $.Deferred();
-
 var $bordercrossing_layer = $.Deferred();
 var $happiness_layer = $.Deferred();
-
 var $min = $.Deferred();
 var $max = $.Deferred();
-
 var $info_detail = $.Deferred();
 
 

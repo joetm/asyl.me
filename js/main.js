@@ -8,25 +8,17 @@
 define([
     'config',
     'data',
+    'map',
     'domReady',
     'tpl',
     'helpers'
-], function (config, data, domReady, tpl, helpers) {
+], function (config, data, map, domReady, tpl, helpers) {
     'use strict';
 
     domReady(function (doc) {
 
         // remove the loader
         $('#loader').addClass('done');
-
-        // leaflet map
-        var map = L.map('map', {
-            center: L.latLng(47.5133586, 10.1074008),
-            zoom: config.zoom_level,
-            animate: config.animate,
-            layers: [ config.baseMaps.tiles ]
-        });
-        $map.resolve(map);
 
         // -------------------------------------------------------------
 
@@ -69,32 +61,30 @@ define([
         */
 
         // info panel in top right
-        $.when(tpl).done(function (templates) {
-            tpl.info_panel.onAdd = function (map) {
-                var div = L.DomUtil.create('div', 'info panel');
-                div.innerHTML = 'Choose your origin'; // tpl.info_panelTpl({name: 'Country'});
-                // initially hidden
-                // L.DomUtil.addClass(div, 'hidden');
-                return div;
-            };
-            tpl.info_panel.addTo(map);
-        });
+        tpl.info_panel.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info panel');
+            div.innerHTML = 'Choose your origin'; // tpl.info_panelTpl({name: 'Country'});
+            // initially hidden
+            // L.DomUtil.addClass(div, 'hidden');
+            return div;
+        };
+        console.log('tpl.info_panel', tpl.info_panel);
+        console.log('map', map);
+        tpl.info_panel.addTo(map);
 
         // (debug) info panel at bottom right
-        $.when(tpl).done(function (templates) {
-            tpl.info_detail.onAdd = function (map) {
-                var div = L.DomUtil.create('div', 'info detail');
-                // initially hidden
-                L.DomUtil.addClass(div, 'hidden');
-                L.DomUtil.addClass(div, 'pull-right');
-                L.DomUtil.addClass(div, 'bottomright');
-                div.innerHTML = tpl.info_detailTpl({name: 'Country'});
-                return div;
-            };
-            tpl.info_detail.addTo(map);
-            $('.info.debug').parent('div').addClass('debug');
-            $info_detail.resolve(tpl.info_detail);
-        });
+        tpl.info_detail.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info detail');
+            // initially hidden
+            L.DomUtil.addClass(div, 'hidden');
+            L.DomUtil.addClass(div, 'pull-right');
+            L.DomUtil.addClass(div, 'bottomright');
+            div.innerHTML = tpl.info_detailTpl({name: 'Country'});
+            return div;
+        };
+        tpl.info_detail.addTo(map);
+        $('.info.debug').parent('div').addClass('debug');
+        $info_detail.resolve(tpl.info_detail);
 
         // legend (bottom right)
         $.when($min, $max).done(function (min, max) {
@@ -323,10 +313,10 @@ define([
         // overlays
         $.when($bordercrossing_layer, $happiness_layer).done(function (bordercrossing_layer, happiness_layer) {
 
-            overlayMaps['Happiness Score'] = happiness_layer;
-            overlayMaps['Border Crossings'] = bordercrossing_layer;
+            config.overlayMaps['Happiness Score'] = happiness_layer;
+            config.overlayMaps['Border Crossings'] = bordercrossing_layer;
 
-            var control = L.control.layers(overlayMaps).addTo(map);
+            var control = L.control.layers(config.overlayMaps).addTo(map);
             control.setPosition('bottomleft');
 
         });

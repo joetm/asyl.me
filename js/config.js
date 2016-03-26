@@ -34,7 +34,7 @@ define(['leaflet'], function (L) {
 
     config.baseMaps = {
             // OSM tiles
-            "tiles": L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            'tiles': L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
                     maxZoom: config.maxZoom,
                     minZoom: config.minZoom,
                     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',

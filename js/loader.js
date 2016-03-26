@@ -22,14 +22,17 @@ requirejs.config({
         'tpl': './js/tpl',
         'helpers': './js/helpers',
         'data': './js/data',
+        'map': './js/map',
         'main': './js/main',
         'arcs': './js/arcs'
         // ------------------------------------
     },
     // shim config to load modules in the right order
+    // Note: keep implicit requisites to minimum
     shim: {
         'main': ['jquery', 'leaflet', 'papaparse'],
-        'arcs': ['leaflet', 'mapbox-arc']
+        'arcs': ['leaflet', 'mapbox-arc'],
+        'helpers': ['jquery']
     }
 });
 
