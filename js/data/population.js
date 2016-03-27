@@ -61,6 +61,18 @@ define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, P
 
         data.resolve('population', population);
 
+
+// TODO
+                // population
+                // feature.properties.population = get_property(feature.properties.name, population, 'Population');
+
+
+
+
+
+
+
+
     });
 
     return $population;

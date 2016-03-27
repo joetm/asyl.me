@@ -48,6 +48,14 @@ define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, P
 
         data.resolve('gdp', gdp);
 
+
+//TODO
+            // gdp
+            // feature.properties.gdp = get_property(feature.properties.name, gdp, 'IntDollar');
+            // TODO: fix GDP for Syria
+
+
+
     });
 
     return $gdp;

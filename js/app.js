@@ -37,20 +37,6 @@ define([
             // console.log(LOGPREFIX+'happiness', happiness);
             // console.log(LOGPREFIX+'minmax', minmax);
 
-            // create a shading range
-            var shades = {};
-            var keys = Object.keys(happiness);
-            for (var i = 0, s = keys.length; i < s; i++) {
-                // does the country name need to be remapped?
-                // console.log(remapping[happiness[i]['Country']]);
-                //if (remapping[happiness[i].Country] !== undefined) {
-                //    happiness[i].Country = remapping[happiness[i].Country];
-                //    // console.log('remapped', happiness[i]);
-                //}
-                // console.log(LOGPREFIX+'hscore', happiness[keys[i]].Score);
-                shades[keys[i]] = 100 - happiness[keys[i]].Score / minmax.max * 100;
-            }
-            console.log(LOGPREFIX+'shades', shades);
 
             // console.log(LOGPREFIX+'countries', countries);
             var happiness_layer = L.geoJson(data.countries, {

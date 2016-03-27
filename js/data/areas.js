@@ -76,6 +76,37 @@ define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, P
 
         data.resolve('areas', areas);
 
+
+//TODO
+                // area
+                // feature.properties.area = get_property(feature.properties.name, areas, 'Land');
+
+
+
+
+
+// TODO
+                // population per area
+/*
+                feature.properties.ppa = 0;
+                if (
+                    feature.properties.area > 0
+                ) {
+                    if (!feature.properties.population) {
+                        feature.properties.population = 0;
+                    }
+                    feature.properties.ppa = feature.properties.population / feature.properties.area;
+                }
+*/
+
+
+
+
+
+
+
+
+
     });
 
     return $areas;
