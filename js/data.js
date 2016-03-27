@@ -3,6 +3,7 @@
  * @module
  */
 
+/*global define*/
 
 define(['jquery', 'domReady', 'helpers', 'papaparse'], function ($, domReady, helpers, Papa) {
     'use strict';

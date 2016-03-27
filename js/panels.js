@@ -3,7 +3,9 @@
  * @module
  */
 
-define(['tpl', 'leaflet', 'map', 'config', 'helpers', 'happiness', 'minmax'], function (tpl, L, map, config, helpers, happiness, $minmax) {
+/*global define*/
+
+define(['jquery', 'tpl', 'leaflet', 'map', 'config', 'helpers', 'happiness', 'minmax'], function ($, tpl, L, map, config, helpers, happiness, $minmax) {
     'use strict';
 
     // ---------------------
@@ -11,7 +13,7 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers', 'happiness', 'minmax'], fu
     // ---------------------
 
     // info panel in top right
-    tpl.info_panel.onAdd = function (map) {
+    tpl.info_panel.onAdd = function () {
         var div = L.DomUtil.create('div', 'info panel');
         div.innerHTML = 'Choose your origin'; // tpl.info_panelTpl({name: 'Country'});
         // initially hidden
@@ -21,7 +23,7 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers', 'happiness', 'minmax'], fu
     tpl.info_panel.addTo(map);
 
     // (debug) info panel at bottom right
-    tpl.info_detail.onAdd = function (map) {
+    tpl.info_detail.onAdd = function () {
         var div = L.DomUtil.create('div', 'info detail');
         // initially hidden
         L.DomUtil.addClass(div, 'hidden');
@@ -43,7 +45,7 @@ define(['tpl', 'leaflet', 'map', 'config', 'helpers', 'happiness', 'minmax'], fu
             var div = L.DomUtil.create('div', 'info legend'),
                 // generate integer range
                 // see http://stackoverflow.com/a/10050831/426266
-                grades = Array.apply(null, Array(parseInt(minmax.max + 1, 10))).map(function (_, i) {return i;}),
+                grades = Array.apply(null, Array(parseInt(minmax.max + 1, 10))).map(function (_, i) { return i; }),
                 labels = [];
             // console.log(grades);
             // header?

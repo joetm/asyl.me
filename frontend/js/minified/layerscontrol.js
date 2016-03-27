@@ -1,0 +1,1 @@
+define(["leaflet","map","config","happiness_layer","bordercrossings_layer","app"],function(o,e,a,r,s,l){"use strict";console.log("config.overlayMaps",a.overlayMaps);var n=o.control.layers(a.overlayMaps).addTo(e);return n.setPosition("bottomleft"),n});

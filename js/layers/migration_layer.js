@@ -3,6 +3,9 @@
  * @module
  */
 
+/*global define*/
+
+
 define(['leaflet', 'domReady', 'map', 'mapbox-arc'], function (L, domReady, map, arcs) {
     'use strict';
 

@@ -3,7 +3,7 @@
  * @module
  */
 
-/* global $, L, Papa */
+/*global define, $, L, Papa*/
 
 define([
     'config',

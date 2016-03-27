@@ -3,6 +3,8 @@
  * @module
  */
 
+/*global define*/
+
 define(['doT', 'leaflet'], function (doT, L) {
     'use strict';
 

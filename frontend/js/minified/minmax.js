@@ -1,0 +1,1 @@
+define(["happiness"],function(e){"use strict";var n=$.Deferred();return $.when(e).done(function(e){console.log("minmax:happiness",e);for(var r,o=0,a=Object.keys(e),i=0,s=a.length;s>i;i++)o=Math.max(o,e[a[i]].Score),r=r?Math.min(r,e[a[i]].Score):e[a[i]].Score;var t={min:r,max:o};n.resolve(t)}),n});

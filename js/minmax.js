@@ -4,6 +4,8 @@
  * @return Promise
  */
 
+/*global define*/
+
 // TODO:
 // write this, so that any data can be processed
 

@@ -4,6 +4,8 @@
  * @module
  */
 
+/*global define*/
+
 // define(function(require, exports, module) { // CommonJS conversion
 define([], function () {
     'use strict';

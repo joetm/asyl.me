@@ -1,0 +1,1 @@
+define(["config","leaflet"],function(e,a){"use strict";var t=a.map("map",{center:a.latLng(47.5133586,10.1074008),zoom:e.zoom_level,animate:e.animate,layers:[e.baseMaps.tiles]});return t});

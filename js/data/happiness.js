@@ -4,6 +4,8 @@
  * @return Promise $happiness
  */
 
+/*global define*/
+
 
 define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, Papa) {
     'use strict';

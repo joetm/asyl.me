@@ -3,6 +3,8 @@
  * @module
  */
 
+/*global define*/
+
 
 define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, Papa) {
     'use strict';
@@ -27,11 +29,11 @@ define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, P
             return;
         }
         var conflicts = Papa.parse(conflicts_data, {
-                        delimiter: ",",
-                        newline: "",
-                        header: true,
-                        dynamicTyping: true
-            });
+            delimiter: ",",
+            newline: "",
+            header: true,
+            dynamicTyping: true
+        });
         conflicts = conflicts.data;
         console.log('conflicts', conflicts);
 

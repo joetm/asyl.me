@@ -3,6 +3,8 @@
  * @module
  */
 
+/*global define*/
+
 
 define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, Papa) {
     'use strict';
@@ -27,11 +29,11 @@ define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, P
         }
         // parse the tsv data
         centroid_data = Papa.parse(centroid_data, {
-                        delimiter: "\t",
-                        newline: "",
-                        header: true,
-                        dynamicTyping: true
-            });
+            delimiter: "\t",
+            newline: "",
+            header: true,
+            dynamicTyping: true
+        });
         centroid_data = centroid_data.data;
         // build the keyed centroids object
         var centroids = {};

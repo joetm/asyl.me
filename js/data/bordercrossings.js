@@ -4,8 +4,10 @@
  * @type geojson
  */
 
+/*global define*/
 
-define(['jquery', 'data', 'helpers', 'papaparse'], function ($, data, helpers, Papa) {
+
+define(['data', 'helpers'], function (data, helpers) {
     'use strict';
 
     var $bordercrossings = data.register('bordercrossings');

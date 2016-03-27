@@ -3,6 +3,9 @@
  * @module
  */
 
+/*global define*/
+
+
 define(['config', 'bordercrossings', 'leaflet', 'helpers'], function (config, $bordercrossings, L, helpers) {
     'use strict';
 

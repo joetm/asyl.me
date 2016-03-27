@@ -4,6 +4,8 @@
  * @return Promise $happiness
  */
 
+/*global define*/
+
 
 define(['config', 'happiness', 'leaflet', 'helpers', 'papaparse'], function (config, happiness, L, helpers, Papa) {
     'use strict';

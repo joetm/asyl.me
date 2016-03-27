@@ -3,6 +3,8 @@
  * @module
  */
 
+/*global define*/
+
 define([
     'leaflet',
     'map',

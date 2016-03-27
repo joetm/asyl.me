@@ -3,6 +3,8 @@
  * @module
  */
 
+/*global define*/
+
 // based on https://blog.tompawlak.org/number-currency-formatting-javascript
 Number.prototype.formatNumber = function () {
     var num = this;
