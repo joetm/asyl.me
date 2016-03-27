@@ -5,6 +5,8 @@ ASYL.ME
 Installation
 ------------
 
+`npm install`
+
 `pip install ./scrape/requirements.txt`
 
 
