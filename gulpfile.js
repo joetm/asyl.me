@@ -15,6 +15,8 @@ var gulp = require('gulp'),
     //jshint = require('gulp-jshint');
     //jslint = require('gulp-jslint');
 
+var requirejsOptimize = require('gulp-requirejs-optimize');
+
 
 //jslint
 gulp.task('jslint', function () {
@@ -37,18 +39,18 @@ gulp.task('jslint', function () {
 
 //js
 gulp.task('js', function() {
-//    gulp.src(
-//        [
-//            'js/**/*.js',
-//            // '!frontend/js/*.min.js'
-//        ]
-//    )
-//    //.pipe(plumber())
-//    //.pipe(sourcemaps.init())
-//    .pipe(concat('scripts.min.js'))
-//    .pipe(uglify())
-//    //.pipe(sourcemaps.write('./'))
-//    .pipe(gulp.dest('prod/js'));
+    return gulp.src(
+        [
+            'js/**/*.js',               // '!frontend/js/*.min.js'
+            './vendor/doT/doT.min.js'
+        ]
+    )
+    .pipe(requirejsOptimize())
+    //.pipe(sourcemaps.init())
+    .pipe(uglify())
+    //.pipe(concat('scripts.min.js'))
+    //.pipe(sourcemaps.write('prod/js'))
+    .pipe(gulp.dest('prod/js/scripts.min.js'));
 });
 
 //css
