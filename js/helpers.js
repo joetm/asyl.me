@@ -38,20 +38,6 @@ define([], function () {
         return 'hsl(66, 22%, ' + (d * 10) + '%)';
     };
 
-    helpers.get_happiness = function (countryname, happiness) {
-        var score = 'unknown';
-        for (var i = 0, s = happiness.length; i < s; i++) {
-            if (happiness[i].Country === countryname) {
-                score = happiness[i].Score;
-                break;
-            }
-        }
-        if (!(score >= 0)) {
-            score = 'unknown';
-        }
-        return score;
-    };
-
     helpers.get_property = function (countryname, obj, key) {
         var score = 'unknown';
 

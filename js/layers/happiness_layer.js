@@ -43,10 +43,9 @@ define([
         var keys = Object.keys(happiness);
         for (var i = 0, s = keys.length; i < s; i++) {
             // does the country name need to be remapped?
-            // console.log(remapping[happiness[i]['Country']]);
             //if (remapping[happiness[i].Country] !== undefined) {
             //    happiness[i].Country = remapping[happiness[i].Country];
-            //    // console.log('remapped', happiness[i]);
+            //    // console.log(LOGPREFIX+'remapped', happiness[i]);
             //}
             // console.log(LOGPREFIX+'hscore', happiness[keys[i]].Score);
             shades[keys[i]] = 100 - happiness[keys[i]].Score / minmax.max * 100;
@@ -58,7 +57,8 @@ define([
             onEachFeature: function (feature, layer) {
 
                 // happiness
-                feature.properties.happiness = helpers.get_happiness(feature.properties.name, happiness);
+                feature.properties.happiness = helpers.get_property(feature.properties.name, happiness, 'Score');
+                // console.log(LOGPREFIX+'feature.properties.happiness', feature.properties.happiness);
 
                 // set coloring / shading
                 if (shades[feature.properties.name] !== undefined) {
@@ -136,18 +136,8 @@ define([
                     //    fillOpacity: 0.2
                     //});
 
-                    /*
-                    // console.log(ppa);
-                    if (ppa >= config.gdp.green) {
-                        // console.log(LOGPREFIX+'gdp green');
-                        $('.info.detail .gdp').css('color', 'green');
-                    } else {
-                        // console.log(LOGPREFIX+'gdp normal');
-                        $('.info.detail .gdp').css('color', 'inherit');
-                    }
-                    */
                     // show the info container
-                    L.DomUtil.removeClass(info_detail._container, 'hidden');
+                    L.DomUtil.removeClass(tpl.info_detail._container, 'hidden');
                 });
 
                 /*
