@@ -3,14 +3,14 @@
  * @module
  */
 
-define(['config', 'leaflet', 'helpers'], function (config, L, helpers) {
+define(['config', 'bordercrossings', 'leaflet', 'helpers'], function (config, $bordercrossings, L, helpers) {
     'use strict';
 
-    // Border crossings
-    var $bordercrossings_query = helpers.load_csv("data/bordercrossings/bordercrossings.geojson", 'json');
+    var LOGPREFIX = 'bordercrossings_layer:';
 
-    $bordercrossings_query.done(function (bordercrossing_data) {
-        var bordercrossing_layer = L.geoJson(bordercrossing_data, {
+    $.when($bordercrossings).done(function (bordercrossings) {
+
+        var bordercrossing_layer = L.geoJson(bordercrossings, {
             pointToLayer: function (feature, latlng) {
                 // circles instead of markers
                 feature.properties.radius = 50;
@@ -26,12 +26,10 @@ define(['config', 'leaflet', 'helpers'], function (config, L, helpers) {
                 layer.bindPopup(feature.properties.name);
             }
         }); //.addTo(map)
-        // bordercrossing_layer.bringToFront();
 
         // add overlay layer to config
         config.overlayMaps['Border Crossings'] = bordercrossing_layer;
 
     });
-
 
 });

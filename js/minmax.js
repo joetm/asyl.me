@@ -22,18 +22,21 @@ define(['happiness'], function ($happiness) {
 
     // console.log('minmax:module', module);
 
-    $happiness.done(function (happiness) {
+    $.when($happiness).done(function (happiness) {
+
+        console.log('minmax:happiness', happiness);
 
         // calculate min/max happiness
         var tmax = 0,
             tmin;
-        for (var i = 0, s = happiness.length; i < s; i++) {
-            tmax = Math.max(tmax, happiness[i].Score);
+        var keys = Object.keys(happiness);
+        for (var i = 0, s = keys.length; i < s; i++) {
+            tmax = Math.max(tmax, happiness[keys[i]].Score);
             if (!tmin) {
-                tmin = happiness[i].Score;
+                tmin = happiness[keys[i]].Score;
                 continue;
             }
-            tmin = Math.min(tmin, happiness[i].Score);
+            tmin = Math.min(tmin, happiness[keys[i]].Score);
         }
         // console.log('min(Happiness)', tmin);
         // console.log('max(Happiness)', tmax);
@@ -44,6 +47,7 @@ define(['happiness'], function ($happiness) {
         };
 
         $minmax.resolve(minmax);;
+        // console.log('minmax:minmax', minmax);
 
     });
 

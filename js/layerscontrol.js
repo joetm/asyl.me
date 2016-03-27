@@ -7,10 +7,10 @@ define([
     'leaflet',
     'map',
     'config',
-    'happiness',
-    'bordercrossings',
-    'main'
-], function (L, map, config) {
+    'happiness_layer',
+    'bordercrossings_layer',
+    'app'
+], function (L, map, config, happiness, bordercrossings, app) {
     'use strict';
 
     // TODO

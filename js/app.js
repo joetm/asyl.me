@@ -14,17 +14,11 @@ define([
     'helpers',
     'panels',
     'happiness',
-    'minmax',
-    'layerscontrol'
-], function (config, data, map, domReady, tpl, helpers, panels, $happiness, $minmax, control) {
+    'minmax'
+], function (config, data, map, domReady, tpl, helpers, panels, $happiness, $minmax) {
     'use strict';
 
-    // TODO:
-    // fix this
-    var $happiness_layer = $.Deferred();
-    var $bordercrossing_layer = $.Deferred();
-
-
+    var LOGPREFIX = 'app:';
 
     domReady(function (doc) {
 
@@ -33,61 +27,64 @@ define([
 
         // -------------------------------------------------------------
 
-        // TODO
-        // the data should not be pulled into the app here
-        // each module should add its data
-
-
-
-
-
-
         // process the shapes and shades data
         $.when(
             $happiness,
             $minmax,
-            data.$countries,
-            data.$population,
-            data.$areas,
-            data.$gdp,
-            data.$centroids
-        ).done(function (happiness, minmax, countries, population, areas, gdp, centroids) {
+            data.allresolved
+        ).done(function (happiness, minmax, data) {
 
-            console.log('main:happiness', happiness);
+            // console.log(LOGPREFIX+'happiness', happiness);
+            // console.log(LOGPREFIX+'minmax', minmax);
 
             // create a shading range
             var shades = {};
-            for (var i = 0, s = happiness.length; i < s; i++) {
+            var keys = Object.keys(happiness);
+            for (var i = 0, s = keys.length; i < s; i++) {
                 // does the country name need to be remapped?
                 // console.log(remapping[happiness[i]['Country']]);
                 //if (remapping[happiness[i].Country] !== undefined) {
                 //    happiness[i].Country = remapping[happiness[i].Country];
                 //    // console.log('remapped', happiness[i]);
                 //}
-                shades[happiness[i].Country] = 100 - happiness[i].Score / minmax.max * 100;
+                // console.log(LOGPREFIX+'hscore', happiness[keys[i]].Score);
+                shades[keys[i]] = 100 - happiness[keys[i]].Score / minmax.max * 100;
             }
-            // console.log('shades', shades);
+            console.log(LOGPREFIX+'shades', shades);
 
-            // console.log('countries', countries);
-            var happiness_layer = L.geoJson(countries, {
+            // console.log(LOGPREFIX+'countries', countries);
+            var happiness_layer = L.geoJson(data.countries, {
                 // style: config.defaultStyle,
                 onEachFeature: function(feature, layer) {
 
+                    // TODO:
+                    // each plugin must do this itself
+
+
+
+
+
+
+
+
+
+
+
                     // happiness
-                    feature.properties.happiness = helpers.get_happiness(feature.properties.name, happiness);
+                    feature.properties.happiness = helpers.get_happiness(feature.properties.name, data.happiness);
 
                     // gdp
-                    feature.properties.gdp = helpers.get_property(feature.properties.name, gdp, 'IntDollar');
+                    feature.properties.gdp = helpers.get_property(feature.properties.name, data.gdp, 'IntDollar');
                     // TODO: fix GDP for Syria
 
                     // population
-                    feature.properties.population = helpers.get_property(feature.properties.name, population, 'Population');
+                    feature.properties.population = helpers.get_property(feature.properties.name, data.population, 'Population');
 
                     // area
-                    feature.properties.area = helpers.get_property(feature.properties.name, areas, 'Land');
+                    feature.properties.area = helpers.get_property(feature.properties.name, data.areas, 'Land');
 
                     // centroid
-                    feature.properties.center = helpers.get_properties(feature.properties.name, centroids, ['LAT', 'LONG']);
+                    feature.properties.center = helpers.get_properties(feature.properties.name, data.centroids, ['LAT', 'LONG']);
 
                     // population per area
                     feature.properties.ppa = 0;
@@ -113,11 +110,11 @@ define([
 
 
 
-                    // console.log('feature', feature);
-                    // console.log('layer', layer);
+                    // console.log(LOGPREFIX+'feature', feature);
+                    // console.log(LOGPREFIX+'layer', layer);
 
                     layer.on("click", function (e) {
-                        // console.log(this.feature.properties.name, this.options.fillColor);
+                        // console.log(LOGPREFIX+this.feature.properties.name, this.options.fillColor);
                         // panel with debug info
                         tpl.info_detail._container.innerHTML = tpl.info_detailTpl({
                             name: this.feature.properties.name,

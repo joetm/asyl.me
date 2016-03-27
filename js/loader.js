@@ -1,5 +1,9 @@
 /** Configuration of Require.js */
-requirejs.config({
+
+// -data plugins ----------------------
+var data_plugins = ['areas', 'centroids', 'conflicts', 'countries', 'gdp', 'population', 'happiness', 'bordercrossings'];
+
+var config = {
     baseUrl: './',
     waitSeconds: 0,
     // cache buster for development
@@ -25,10 +29,10 @@ requirejs.config({
         'panels': './js/panels',
         'minmax': './js/minmax',
         'mapbox-arc': './js/mapbox-arc',
-        'main': './js/main',
+        'app': './js/app',
         // -layers ----------------------------
-        'happiness': './js/layers/happiness',
-        'bordercrossings': './js/layers/bordercrossings',
+        'happiness_layer': './js/layers/happiness_layer',
+        'bordercrossings_layer': './js/layers/bordercrossings_layer',
         'migration': './js/layers/migration',
         'layerscontrol': './js/layerscontrol'
         // ------------------------------------
@@ -36,11 +40,33 @@ requirejs.config({
     // shim config to load modules in the right order
     // Note: keep implicit requisites to minimum
     shim: {
-        'main': ['jquery', 'leaflet', 'papaparse'],
+        'app': ['jquery', 'leaflet', 'papaparse'],
         'arcs': ['leaflet', 'mapbox-arc'],
-        'helpers': ['jquery']
+        'helpers': ['jquery'],
+        'layerscontrol': ['app']
     }
-});
+};
+
+
+// ---------------------------------------------------
+// END CONFIG ----------------------------------------
+// ---------------------------------------------------
+
+
+// load the data plugins
+var keys = Object.keys(data_plugins);
+for (var i = 0, s = keys.length; i < s; i++){
+    config.paths[data_plugins[keys[i]]] = './js/data/' + data_plugins[keys[i]];
+}
+
+// set the config
+requirejs.config(config);
 
 // start the main app
-requirejs(["main"]);
+requirejs(["app"]);
+
+// start the data plugins
+requirejs(data_plugins);
+
+// start the layers
+requirejs(["layerscontrol"]);
