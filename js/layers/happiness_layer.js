@@ -8,22 +8,24 @@
 
 
 define([
+    'jquery',
     'config',
     'leaflet',
     'helpers',
     'papaparse',
     'tpl',
-    // data
+    'data',
     'countries',
     'happiness',
     'minmax'
 ], function (
+    $,
     config,
     L,
     helpers,
     Papa,
     tpl,
-    // data
+    data,
     countries,
     happiness,
     minmax
@@ -34,11 +36,11 @@ define([
 
     $.when(countries, happiness, minmax).done(function (countries, happiness, minmax) {
 
-        console.log(LOGPREFIX+'countries', countries);
+        // console.log(LOGPREFIX+'countries', countries);
         // console.log(LOGPREFIX+'happiness', happiness);
         // console.log(LOGPREFIX+'minmax', minmax);
 
-        // create a shading range
+        // create a shading range from the happiness scores
         var shades = {};
         var keys = Object.keys(happiness);
         for (var i = 0, s = keys.length; i < s; i++) {
@@ -50,7 +52,9 @@ define([
             // console.log(LOGPREFIX+'hscore', happiness[keys[i]].Score);
             shades[keys[i]] = 100 - happiness[keys[i]].Score / minmax.max * 100;
         }
-        console.log(LOGPREFIX+'shades', shades);
+        // console.log(LOGPREFIX+'shades', shades);
+
+        // console.log(LOGPREFIX+'countries', countries);
 
         var happiness_layer = L.geoJson(countries, {
             style: config.defaultStyle,
@@ -62,23 +66,23 @@ define([
 
                 // set coloring / shading
                 if (shades[feature.properties.name] !== undefined) {
+                    // console.log(LOGPREFIX+'hsl', 'hsl(66, 22%, ' + (minmax.max * 10 - shades[feature.properties.name]) + '%)');
                     layer.setStyle({
-                        fillColor: 'hsl(66, 22%, ' + (minmax.max*10 - shades[feature.properties.name]) + '%)'
+                        fillColor: 'hsl(66, 22%, ' + (minmax.max * 10 - shades[feature.properties.name]) + '%)'
                     });
                 }
 
                 // console.log(LOGPREFIX+'feature', feature);
                 // console.log(LOGPREFIX+'layer', layer);
 
-
-
+                // -----------------------------
 
                 layer.on("click", function (e) {
                     // console.log(LOGPREFIX+this.feature.properties.name, this.options.fillColor);
                     // panel with debug info
                     tpl.info_detail._container.innerHTML = tpl.info_detailTpl({
                         name: this.feature.properties.name,
-                        happiness: feature.properties.happiness,
+                        happiness: feature.properties.happiness
                         //TODO
                         //population: feature.properties.population.formatNumber(),
                         //area: feature.properties.area.formatNumber(),
@@ -105,8 +109,8 @@ define([
 
 
 
-    // function to reset layers
-    // geojson.eachLayer(function(l){geojson.resetStyle(l);});
+                    // function to reset layers
+                    // geojson.eachLayer(function(l){geojson.resetStyle(l);});
 
 
 
@@ -116,8 +120,8 @@ define([
 
 
 
-    //TODO:
-    //fix click on Greece and Greece data
+                    //TODO:
+                    //fix click on Greece and Greece data
 
 
 
@@ -157,6 +161,7 @@ define([
         // happiness_layer.bringToFront();
 
         // add overlay layer to config
+        console.log(LOGPREFIX+'happiness_layer', happiness_layer);
         config.overlayMaps['Happiness Score'] = happiness_layer;
 
     });

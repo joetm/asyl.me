@@ -26,7 +26,7 @@ define(['happiness'], function ($happiness) {
 
     $.when($happiness).done(function (happiness) {
 
-        console.log('minmax:happiness', happiness);
+        // console.log('minmax:happiness', happiness);
 
         // calculate min/max happiness
         var tmax = 0,

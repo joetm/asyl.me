@@ -2,6 +2,7 @@
 
 // -data plugins ----------------------
 var data_plugins = ['areas', 'centroids', 'conflicts', 'countries', 'gdp', 'population', 'happiness', 'bordercrossings'];
+var data_layers  = ['happiness_layer', 'bordercrossings_layer'];
 
 var config = {
     baseUrl: './',
@@ -43,7 +44,7 @@ var config = {
         'app': ['jquery', 'leaflet', 'papaparse'],
         'arcs': ['leaflet', 'mapbox-arc'],
         'helpers': ['jquery'],
-        'layerscontrol': ['app']
+        'layerscontrol': data_layers
     }
 };
 
@@ -67,6 +68,11 @@ requirejs(["app"]);
 
 // start the data plugins
 requirejs(data_plugins);
+
+// start the data plugins
+// requirejs(data_layers);
+
+//console.log('datalayer prereqs:', data_layers);
 
 // start the layers
 requirejs(["layerscontrol"]);
