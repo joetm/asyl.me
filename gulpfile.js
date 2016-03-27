@@ -37,18 +37,18 @@ gulp.task('jslint', function () {
 
 //js
 gulp.task('js', function() {
-    gulp.src(
-        [
-            'js/**/*.js'
-            // '!frontend/js/*.min.js'
-        ]
-    )
-    //.pipe(plumber())
-    //.pipe(sourcemaps.init())
-    .pipe(concat('scripts.min.js'))
-    .pipe(uglify())
-    //.pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('prod/js'));
+//    gulp.src(
+//        [
+//            'js/**/*.js',
+//            // '!frontend/js/*.min.js'
+//        ]
+//    )
+//    //.pipe(plumber())
+//    //.pipe(sourcemaps.init())
+//    .pipe(concat('scripts.min.js'))
+//    .pipe(uglify())
+//    //.pipe(sourcemaps.write('./'))
+//    .pipe(gulp.dest('prod/js'));
 });
 
 //css
@@ -69,10 +69,10 @@ gulp.task('css', function () {
 
 /**********tasks***********/
 
-gulp.task('build', ['css', 'js']);
+gulp.task('build', ['css', 'jslint', 'js']);
 
 //watch
-gulp.task('watch', ['js', 'css'], function () {
+gulp.task('watch', ['jslint', 'js', 'css'], function () {
 
     //css
     gulp.watch([
