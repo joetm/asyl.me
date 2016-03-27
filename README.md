@@ -1,6 +1,7 @@
 ASYL.ME
 ========
 
+
 Installation
 ------------
 
@@ -10,7 +11,7 @@ pip install ./scrape/requirements.txt
 Scraping
 --------
 
-Run `npm run scrape`
+`scrapy runspider ./scrape/bordercrossings.py -o ./data/bordercrossings/bordercrossings.geojson`
 
 
 Extending with data
